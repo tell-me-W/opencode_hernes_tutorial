@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="OpenCode harness skill을 사내 프로젝트에 설치하고 운영하는 단계별 교육 커리큘럼"
+    />
+    <title>OpenCode Harness Tutorial</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Curriculum navigation">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">OH</span>
+          <div>
+            <strong>OpenCode Harness</strong>
+            <span>사내 적용 튜토리얼</span>
+          </div>
+        </div>
+
+        <label class="search" for="doc-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="doc-search" type="search" placeholder="문서 검색" autocomplete="off" />
+        </label>
+
+        <nav>
+          <p class="nav-group">Curriculum</p>
+          <ol id="chapter-list" class="chapter-list"></ol>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <a class="repo-link" href="https://github.com/tell-me-W/opencode_hernes_tutorial" target="_blank" rel="noreferrer">
+            GitHub repo
+          </a>
+          <a class="repo-link" href="https://opencode.ai/docs/" target="_blank" rel="noreferrer">
+            OpenCode docs
+          </a>
+        </header>
+
+        <article id="doc" class="doc" tabindex="-1"></article>
+      </main>
+
+      <aside class="toc" aria-label="Page outline">
+        <p class="nav-group">On this page</p>
+        <ol id="toc-list"></ol>
+      </aside>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
