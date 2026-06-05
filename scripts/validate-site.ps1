@@ -10,17 +10,34 @@ $requiredFiles = @(
 
 $requiredChapters = @(
   "intro",
+  "prerequisites",
+  "opencode-concepts",
   "skill-install",
   "result-tree",
   "project-brain",
+  "project-brain-templates",
   "agents-md",
   "phase-workflow",
+  "phase-design-lab",
   "runner",
   "safety-hooks",
   "harness-skill",
   "review-skill",
+  "troubleshooting",
   "practice",
+  "facilitator-guide",
   "team-rollout"
+)
+
+$requiredMarkers = @(
+  "SESSION-INTRO-2H",
+  "OpenCode searches these locations",
+  "permission.skill",
+  "COPY-PREFLIGHT",
+  "PRD-WORKSHEET",
+  "PHASE-DESIGN-LAB",
+  "TROUBLESHOOTING-ORDER",
+  "FACILITATOR-RUNBOOK"
 )
 
 foreach ($file in $requiredFiles) {
@@ -37,6 +54,12 @@ $workflow = Get-Content -LiteralPath ".github/workflows/pages.yml" -Raw
 foreach ($chapter in $requiredChapters) {
   if (-not $app.Contains("id: `"$chapter`"")) {
     throw "Missing curriculum chapter: $chapter"
+  }
+}
+
+foreach ($marker in $requiredMarkers) {
+  if (-not $app.Contains($marker)) {
+    throw "Missing curriculum content marker: $marker"
   }
 }
 
