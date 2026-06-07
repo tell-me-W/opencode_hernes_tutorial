@@ -44,6 +44,7 @@ $checks = @(
   @{ Name = 'Markdown renderer'; Passed = $app.Contains('function renderMarkdown') },
   @{ Name = 'Left nested section navigation'; Passed = $app.Contains('function extractChapterSections') -and $app.Contains('subchapter-list') },
   @{ Name = 'Nested section navigation styles'; Passed = $styles.Contains('.subchapter-list') -and $styles.Contains('.subchapter-link') },
+  @{ Name = 'Right body TOC removed'; Passed = -not $index.Contains('section-links') -and -not $index.Contains('본문 목차') -and -not $app.Contains('sectionLinks') -and -not $styles.Contains('#section-links') },
   @{ Name = 'GitHub Pages deployment'; Passed = $workflow.Contains('actions/deploy-pages') }
 )
 

@@ -437,14 +437,6 @@ a:hover {
   overflow-wrap: anywhere;
 }
 
-#section-links a {
-  color: var(--muted);
-}
-
-#section-links a:hover {
-  color: var(--accent-strong);
-}
-
 .loading {
   color: var(--muted);
 }

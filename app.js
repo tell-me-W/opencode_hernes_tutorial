@@ -79,7 +79,6 @@ const searchInput = document.querySelector("#chapter-search");
 const keyPoints = document.querySelector("#key-points");
 const outputs = document.querySelector("#outputs");
 const commands = document.querySelector("#commands");
-const sectionLinks = document.querySelector("#section-links");
 
 const contentCache = new Map();
 let pendingSectionId = "";
@@ -376,20 +375,6 @@ function renderSupport(chapter) {
   fillList(keyPoints, chapter.summary);
   fillList(outputs, chapter.outputs);
   fillList(commands, chapter.commands, true);
-
-  sectionLinks.innerHTML = "";
-  lectureBody.querySelectorAll("h2[id], h3[id]").forEach((heading) => {
-    const item = document.createElement("li");
-    const link = document.createElement("a");
-    link.href = `#${chapter.id}`;
-    link.textContent = heading.textContent;
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      heading.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    item.append(link);
-    sectionLinks.append(item);
-  });
 }
 
 async function renderCurrentChapter() {
