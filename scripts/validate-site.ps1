@@ -33,6 +33,33 @@ $index = Get-Content -LiteralPath (Join-Path $root "index.html") -Raw -Encoding 
 $styles = Get-Content -LiteralPath (Join-Path $root "styles.css") -Raw -Encoding UTF8
 $app = Get-Content -LiteralPath (Join-Path $root "app.js") -Raw -Encoding UTF8
 $workflow = Get-Content -LiteralPath (Join-Path $root ".github/workflows/pages.yml") -Raw -Encoding UTF8
+$part6 = Get-Content -LiteralPath (Join-Path $root "content/06-practical-workflow.md") -Raw -Encoding UTF8
+
+function Get-MarkdownSectionHeadings {
+  param([string]$Markdown)
+
+  $headings = @()
+  $inCodeFence = $false
+  foreach ($line in ($Markdown -replace "`r`n", "`n" -split "`n")) {
+    $trimmed = $line.Trim()
+    if ($trimmed -match '^```') {
+      $inCodeFence = -not $inCodeFence
+      continue
+    }
+
+    if ($inCodeFence) {
+      continue
+    }
+
+    if ($trimmed -match '^##\s+([^#].+)$') {
+      $headings += $Matches[1].Trim()
+    }
+  }
+
+  return $headings
+}
+
+$part6Sections = Get-MarkdownSectionHeadings -Markdown $part6
 
 $checks = @(
   @{ Name = 'Course title landmark'; Passed = $index.Contains('site-title') },
@@ -45,6 +72,7 @@ $checks = @(
   @{ Name = 'Left nested section navigation'; Passed = $app.Contains('function extractChapterSections') -and $app.Contains('subchapter-list') },
   @{ Name = 'Nested section navigation styles'; Passed = $styles.Contains('.subchapter-list') -and $styles.Contains('.subchapter-link') },
   @{ Name = 'Right body TOC removed'; Passed = -not $index.Contains('section-links') -and -not $index.Contains('본문 목차') -and -not $app.Contains('sectionLinks') -and -not $styles.Contains('#section-links') },
+  @{ Name = 'Part 6 sidebar sections ignore code fences'; Passed = $app.Contains('inCodeFence') -and $part6Sections.Count -eq 6 -and -not ($part6Sections -contains 'Findings') -and -not ($part6Sections -contains 'Summary') },
   @{ Name = 'GitHub Pages deployment'; Passed = $workflow.Contains('actions/deploy-pages') }
 )
 

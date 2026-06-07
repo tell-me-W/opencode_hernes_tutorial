@@ -121,15 +121,29 @@ function navTitle(chapter) {
 }
 
 function extractChapterSections(markdown) {
-  return markdown
+  const sections = [];
+  let inCodeFence = false;
+
+  markdown
     .replace(/\r\n/g, "\n")
     .split("\n")
-    .map((line) => /^##\s+([^#].+)$/.exec(line.trim()))
-    .filter(Boolean)
-    .map((match) => {
+    .forEach((line) => {
+      const trimmed = line.trim();
+      if (/^```/.test(trimmed)) {
+        inCodeFence = !inCodeFence;
+        return;
+      }
+
+      if (inCodeFence) return;
+
+      const match = /^##\s+([^#].+)$/.exec(trimmed);
+      if (!match) return;
+
       const title = match[1].trim();
-      return { id: slugify(title), title };
+      sections.push({ id: slugify(title), title });
     });
+
+  return sections;
 }
 
 function isTableDivider(line) {
