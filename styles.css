@@ -145,13 +145,8 @@ a:hover {
   list-style: none;
 }
 
-.chapter-group {
-  margin: 20px 9px 8px;
-  color: var(--muted-soft);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.chapter-item {
+  margin: 0 0 16px;
 }
 
 .chapter-button {
@@ -172,6 +167,7 @@ a:hover {
   font-size: 13px;
   line-height: 1.45;
   text-align: left;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -196,6 +192,47 @@ a:hover {
 
 .chapter-button[aria-current="page"]::before {
   color: var(--accent);
+}
+
+.subchapter-list {
+  margin: 5px 0 0;
+  padding: 0 0 0 27px;
+  list-style: none;
+}
+
+.subchapter-list li {
+  position: relative;
+}
+
+.subchapter-list li::before {
+  content: "";
+  position: absolute;
+  left: -15px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #373c58;
+}
+
+.subchapter-link {
+  display: block;
+  width: 100%;
+  min-height: 26px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subchapter-link:hover {
+  background: #2a2e45;
+  color: var(--accent-strong);
 }
 
 .empty-state {
@@ -465,8 +502,8 @@ a:hover {
     padding-bottom: 16px;
   }
 
-  .chapter-group {
-    grid-column: 1 / -1;
+  .chapter-item {
+    min-width: 0;
   }
 
   .topbar {

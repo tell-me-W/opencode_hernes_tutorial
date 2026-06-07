@@ -42,6 +42,8 @@ $checks = @(
   @{ Name = 'Three-column desktop grid'; Passed = $styles.Contains('grid-template-columns: 296px minmax(0, 1fr) 276px') },
   @{ Name = 'Chapter metadata'; Passed = $app.Contains('00-introduction.md') -and $app.Contains('06-practical-workflow.md') },
   @{ Name = 'Markdown renderer'; Passed = $app.Contains('function renderMarkdown') },
+  @{ Name = 'Left nested section navigation'; Passed = $app.Contains('function extractChapterSections') -and $app.Contains('subchapter-list') },
+  @{ Name = 'Nested section navigation styles'; Passed = $styles.Contains('.subchapter-list') -and $styles.Contains('.subchapter-link') },
   @{ Name = 'GitHub Pages deployment'; Passed = $workflow.Contains('actions/deploy-pages') }
 )
 

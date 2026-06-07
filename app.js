@@ -82,6 +82,7 @@ const commands = document.querySelector("#commands");
 const sectionLinks = document.querySelector("#section-links");
 
 const contentCache = new Map();
+let pendingSectionId = "";
 
 function currentId() {
   return decodeURIComponent(window.location.hash.replace("#", "")) || chapters[0].id;
@@ -112,6 +113,24 @@ function renderInline(value) {
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
   html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   return html;
+}
+
+function navTitle(chapter) {
+  if (chapter.group === "Overview") return "OVERVIEW";
+  if (chapter.group === "Intro") return "INTRO";
+  return chapter.group;
+}
+
+function extractChapterSections(markdown) {
+  return markdown
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => /^##\s+([^#].+)$/.exec(line.trim()))
+    .filter(Boolean)
+    .map((match) => {
+      const title = match[1].trim();
+      return { id: slugify(title), title };
+    });
 }
 
 function isTableDivider(line) {
@@ -260,11 +279,44 @@ async function loadChapter(chapter) {
   return markdown;
 }
 
+async function loadChapterSections() {
+  await Promise.all(
+    chapters.map(async (chapter) => {
+      try {
+        const markdown = await loadChapter(chapter);
+        chapter.sections = extractChapterSections(markdown);
+      } catch {
+        chapter.sections = [];
+      }
+    }),
+  );
+  renderNavigation(searchInput.value);
+}
+
+function scrollToSection(sectionId) {
+  if (!sectionId) return;
+  const target = document.getElementById(sectionId);
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function navigateToSection(chapter, sectionId) {
+  if (currentChapter().id === chapter.id) {
+    scrollToSection(sectionId);
+    return;
+  }
+
+  pendingSectionId = sectionId;
+  window.location.hash = chapter.id;
+}
+
 function renderNavigation(filter = "") {
   const needle = filter.trim().toLowerCase();
   const selected = currentChapter().id;
   const visible = chapters.filter((chapter) => {
-    const haystack = `${chapter.title} ${chapter.group} ${chapter.summary.join(" ")}`.toLowerCase();
+    const sectionText = (chapter.sections || []).map((section) => section.title).join(" ");
+    const haystack = `${chapter.title} ${chapter.group} ${sectionText} ${chapter.summary.join(" ")}`.toLowerCase();
     return haystack.includes(needle);
   });
 
@@ -277,26 +329,35 @@ function renderNavigation(filter = "") {
     return;
   }
 
-  let group = "";
   visible.forEach((chapter) => {
-    if (chapter.group !== group) {
-      group = chapter.group;
-      const label = document.createElement("li");
-      label.className = "chapter-group";
-      label.textContent = group;
-      chapterList.append(label);
-    }
-
     const item = document.createElement("li");
+    item.className = "chapter-item";
     const button = document.createElement("button");
     button.className = "chapter-button";
     button.type = "button";
-    button.textContent = chapter.title;
+    button.textContent = navTitle(chapter);
     button.setAttribute("aria-current", chapter.id === selected ? "page" : "false");
     button.addEventListener("click", () => {
       window.location.hash = chapter.id;
     });
     item.append(button);
+
+    if (chapter.sections && chapter.sections.length > 0) {
+      const subList = document.createElement("ol");
+      subList.className = "subchapter-list";
+      chapter.sections.forEach((section) => {
+        const subItem = document.createElement("li");
+        const link = document.createElement("button");
+        link.className = "subchapter-link";
+        link.type = "button";
+        link.textContent = section.title;
+        link.addEventListener("click", () => navigateToSection(chapter, section.id));
+        subItem.append(link);
+        subList.append(subItem);
+      });
+      item.append(subList);
+    }
+
     chapterList.append(item);
   });
 }
@@ -346,7 +407,13 @@ async function renderCurrentChapter() {
   lectureBody.focus({ preventScroll: true });
   renderNavigation(searchInput.value);
   renderSupport(chapter);
-  window.scrollTo({ top: 0, behavior: "auto" });
+  if (pendingSectionId) {
+    const sectionId = pendingSectionId;
+    pendingSectionId = "";
+    requestAnimationFrame(() => scrollToSection(sectionId));
+  } else {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
 }
 
 searchInput.addEventListener("input", (event) => renderNavigation(event.target.value));
@@ -357,3 +424,5 @@ if (!window.location.hash) {
 } else {
   renderCurrentChapter();
 }
+
+loadChapterSections();
