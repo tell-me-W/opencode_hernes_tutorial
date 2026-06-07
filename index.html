@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="오픈코드 하네스 구조를 문서, phase, 검증 흐름으로 배우는 입문 강의"
+    />
+    <title>오픈코드로 하네스 입문 해보기</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="course-nav" id="course-nav" aria-label="강의 목차">
+        <header class="brand-block">
+          <p class="brand-kicker">OpenCode Harness</p>
+          <h1 id="site-title">오픈코드로 하네스 입문 해보기</h1>
+        </header>
+
+        <label class="search-box" for="chapter-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="chapter-search" type="search" placeholder="강의 검색" autocomplete="off" />
+        </label>
+
+        <nav>
+          <ol class="chapter-list" id="chapter-list"></ol>
+        </nav>
+      </aside>
+
+      <main class="lecture-main">
+        <header class="topbar" aria-label="강의 도구">
+          <div class="topbar-icons" aria-hidden="true">
+            <span>▦</span>
+            <span>▤</span>
+            <span>□</span>
+          </div>
+          <a href="https://github.com/tell-me-W/opencode_hernes_tutorial" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </header>
+
+        <article class="lecture-body" id="lecture-body" tabindex="-1"></article>
+      </main>
+
+      <aside class="chapter-support" id="chapter-support" aria-label="현재 장의 핵심 요약">
+        <div class="support-inner">
+          <section>
+            <p class="support-label">핵심 요약</p>
+            <ul id="key-points"></ul>
+          </section>
+          <section>
+            <p class="support-label">산출물</p>
+            <ul id="outputs"></ul>
+          </section>
+          <section>
+            <p class="support-label">검증 명령</p>
+            <ul id="commands"></ul>
+          </section>
+          <section>
+            <p class="support-label">본문 목차</p>
+            <ol id="section-links"></ol>
+          </section>
+        </div>
+      </aside>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
