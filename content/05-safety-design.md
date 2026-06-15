@@ -21,12 +21,16 @@ Harness에서 중요한 승인 지점은 phase 실행 전입니다. Agent가 먼
 
 주요 hook:
 
-- `pre_phase.py`: phase 시작 전 조건 확인
-- `validate_phase.py`: phase 형식과 완료 조건 검증
-- `post_phase.py`: phase 실행 후 상태 정리
-- `tdd_guard.py`: 테스트 없는 behavior 변경 감지
-- `dangerous_cmd_guard.py`: 위험 명령 감지
-- `circuit_breaker.py`: 반복 실패 차단
+- `Harness.Common.ps1`: PowerShell hook 공통 함수
+- `check.ps1`: Windows hook 설치와 기본 동작 확인
+- `pre_phase.ps1` / `pre_phase.py`: phase 시작 전 조건 확인
+- `validate_phase.ps1` / `validate_phase.py`: phase 형식과 완료 조건 검증
+- `post_phase.ps1` / `post_phase.py`: phase 실행 후 상태 정리
+- `tdd_guard.ps1` / `tdd_guard.py`: 테스트 없는 behavior 변경 감지
+- `dangerous_cmd_guard.ps1` / `dangerous_cmd_guard.py`: 위험 명령 감지
+- `circuit_breaker.ps1` / `circuit_breaker.py`: 반복 실패 차단
+
+Windows에서는 같은 이름의 PowerShell hook이 있으면 `.ps1`을 먼저 실행하고, Python hook은 non-Windows 환경을 위한 portable fallback으로 유지합니다.
 
 Hook은 agent를 방해하는 장치가 아니라, 팀이 합의한 작업 흐름을 자동으로 확인하는 장치입니다. 
 다만 hook이 너무 많거나 프로젝트 상황과 맞지 않으면 진행을 불필요하게 막을 수 있습니다. 
@@ -51,7 +55,7 @@ OpenCode plugin은 OpenCode 이벤트에 붙어 동작을 확장하는 JS/TS 코
 
 OpenCode 자체 승인 정책은 `opencode.json`의 `permission`에서 설정할 수 있습니다. 예를 들어 `bash` 권한에 `rm *`이나 `git reset --hard *` 같은 패턴을 `ask` 또는 `deny`로 둘 수 있습니다.
 
-그 위에 Harness는 `scripts/hooks/dangerous_cmd_guard.py`로 phase 실행 전 command를 한 번 더 검사합니다. 즉 `permission`은 OpenCode 도구 실행 승인 정책이고, `dangerous_cmd_guard.py`는 Harness runner 안에서 동작하는 추가 안전 검사입니다.
+그 위에 Harness는 `scripts/hooks/dangerous_cmd_guard.ps1` 또는 `scripts/hooks/dangerous_cmd_guard.py`로 phase 실행 전 command를 한 번 더 검사합니다. 즉 `permission`은 OpenCode 도구 실행 승인 정책이고, dangerous command guard는 Harness runner 안에서 동작하는 추가 안전 검사입니다.
 
 주의할 명령과 패턴:
 
@@ -87,6 +91,7 @@ UI copy 수정처럼 테스트보다 수동 확인이 더 적절한 작업은 ve
 2. 어떤 hook 또는 검증에서 막혔는지 확인합니다.
 3. phase의 done criteria가 현실적인지 봅니다.
 4. 문서 충돌이나 누락된 요구사항을 확인합니다.
-5. 필요한 경우 phase를 수정하고 다시 승인받습니다.
+5. `success_hooks`가 실패했다면 해당 성공 조건을 만족하도록 빌드나 검증을 먼저 고칩니다.
+6. 필요한 경우 phase를 수정하고 다시 승인받습니다.
 
 Hook을 끄는 것은 마지막 선택입니다. 그 경우에도 강한 근거와 ADR 업데이트가 필요합니다.

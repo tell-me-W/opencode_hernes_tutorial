@@ -28,6 +28,7 @@ Phase는 agent에게 주는 작은 작업 계약입니다. 하나의 phase는 �
 
 ```text
 phases/todo-list/
+  index.json
   00-bootstrap.md
   10-plan.md
   20-implement.md
@@ -36,7 +37,7 @@ phases/todo-list/
   state.json
 ```
 
-`state.json`은 현재 phase, 완료된 phase, blocked 상태, 실패 정보를 관리하는 데 사용합니다.
+`index.json`은 실행할 step의 manifest입니다. 각 step은 phase 파일, step type, 선행 조건, 성공 hook을 선언합니다. `state.json`은 현재 step, 완료된 step, blocked 상태, 실패 정보를 관리하는 데 사용합니다.
 
 ## 3. Phase 실행 컨텍스트 준비
 
@@ -79,12 +80,19 @@ Do not change UI files in this phase.
 
 `execute.py`의 역할은 다음과 같습니다.
 
+- `phases/{task-name}/index.json`이 있으면 step manifest를 읽습니다.
+- manifest가 없으면 기존 방식처럼 정렬된 `*.md` phase 파일을 사용합니다.
 - `phases/{task-name}/state.json`을 읽고 현재 상태를 확인합니다.
 - 승인되지 않은 phase는 실행하지 않습니다.
-- 다음에 실행할 phase 파일을 순서대로 선택합니다.
-- phase 파일의 verification command block을 실행합니다.
+- `requires`가 충족된 다음 step을 선택합니다.
+- `command` step은 phase 파일의 shell command block을 실행합니다.
+- `verify` step은 phase 파일의 verification command block을 실행합니다.
+- `agent` step은 phase를 검증한 뒤 외부 OpenCode/Codex agent 실행을 위해 멈춥니다.
 - 실행 전후로 `scripts/hooks/`의 safety hook을 호출합니다.
 - 실패하면 `state.json`에 blocked/failures 정보를 남깁니다.
+- `success_hooks`가 있으면 `scripts/success/` 아래의 명명된 성공 조건을 실행합니다.
+
+예를 들어 Ant 프로젝트에서는 빌드가 반드시 증명되어야 하는 step에 `"success_hooks": ["ant_build"]`를 추가합니다. 이 hook은 `scripts/success/ant_build.ps1`에서 `build.xml`을 확인하고 `ant` 또는 `$env:HARNESS_ANT_TARGET`을 실행합니다.
 
 기본 명령은 세 가지입니다.
 
@@ -92,11 +100,19 @@ Do not change UI files in this phase.
 python scripts/execute.py phases/todo-items status
 python scripts/execute.py phases/todo-items approve
 python scripts/execute.py phases/todo-items run
+python scripts/execute.py phases/todo-items run --max-retries 3
+python scripts/execute.py phases/todo-items run --git-commits
+python scripts/execute.py phases/todo-items run --branch-prefix harness
 ```
 
 - `status`: 현재 phase 상태 확인
 - `approve`: 사용자가 phase 설계를 승인했다는 사실을 기록
 - `run`: 승인된 phase loop 실행
+- `--max-retries`: 실패한 step을 정해진 횟수만큼 재시도
+- `--git-commits`: step 완료 후 git commit 생성
+- `--branch-prefix`: task별 작업 branch prefix 지정
+
+`--git-commits`는 git repository이고 사용자 이름과 이메일이 설정된 경우에만 사용합니다.
 
 일반 사용자는 이 명령을 직접 외울 필요는 없습니다. `/harness` skill이 대상 phase 디렉터리를 받아 이 runner 흐름을 안내하거나 실행합니다.
 
@@ -125,3 +141,4 @@ Phase가 끝나면 다음을 확인합니다.
 - 다음 phase로 넘어가기 전에 문서 업데이트가 필요한가?
 
 `scripts/execute.py`는 agent 작업을 대체하는 도구가 아닙니다. Phase loop, state, hooks, shell verification을 관리하는 runner입니다.
+`agent` step은 실행을 대신하지 않고 외부 agent 작업을 기다리며, `command`와 `verify` step만 phase 파일의 command block을 실행합니다.

@@ -8,7 +8,7 @@ Harness는 프로젝트 문서, 작업 규칙, phase 실행 흐름, 안전 hook�
 
 - `docs/`: project brain
 - `AGENTS.md`: project constitution
-- `.opencode/skill/`와 `scripts/execute.py`: execution engine
+- `.opencode/skills/`와 `scripts/execute.py`: manifest-driven execution engine
 - `scripts/hooks/`: automated safety checks
 
 ## 2. OpenCode 기본 개념
@@ -28,10 +28,10 @@ OpenCode 설정은 전역 설정과 프로젝트 설정으로 나누어 볼 수 
 
 - 전역 설정: `~/.config/opencode`
 - 프로젝트 설정: `.opencode`
-- 프로젝트 설정 파일: `.opencode/opencode.json`
+- 프로젝트 설정 파일: `.opencode/opencode.json`이 있을 수 있음
 - 프로젝트 작업 규칙: `AGENTS.md`
 
-`opencode.json`은 OpenCode의 동작 설정을 담당합니다. 어떤 skill을 허용할지, 어떤 permission 정책을 둘지 같은 실행 정책을 담습니다.
+`opencode.json`은 OpenCode의 동작 설정을 담당합니다. 어떤 skill을 허용할지, 어떤 permission 정책을 둘지 같은 실행 정책을 담을 수 있습니다. 다만 Harness 템플릿의 필수 출력물은 프로젝트 문서, project-local skills, scripts, phases 구조에 더 가깝습니다.
 
 `AGENTS.md`는 agent가 먼저 읽는 프로젝트 규칙입니다. 이 파일에는 CRITICAL 규칙, 필수 문서 읽기 순서, 멈춰야 하는 조건, 리뷰 기준을 담습니다.
 

@@ -83,18 +83,43 @@ project/
 |   +-- ADR.md
 |   +-- UI_GUIDE.md
 +-- .opencode/
-|   +-- skill/
-|   |   +-- harness.md
-|   |   +-- review.md
-|   +-- opencode.json
+|   +-- skills/
+|       +-- harness/
+|       |   +-- SKILL.md
+|       +-- review/
+|           +-- SKILL.md
 +-- scripts/
 |   +-- execute.py
+|   +-- test_execute.py
 |   +-- hooks/
+|       +-- Harness.Common.ps1
+|       +-- check.ps1
+|       +-- pre_phase.ps1
+|       +-- validate_phase.ps1
+|       +-- post_phase.ps1
+|       +-- tdd_guard.ps1
+|       +-- dangerous_cmd_guard.ps1
+|       +-- circuit_breaker.ps1
+|       +-- pre_phase.py
+|       +-- validate_phase.py
+|       +-- post_phase.py
+|       +-- tdd_guard.py
+|       +-- dangerous_cmd_guard.py
+|       +-- circuit_breaker.py
+|   +-- success/
+|       +-- ant_build.ps1
 +-- phases/
     +-- _template/
+        +-- index.json
+        +-- 00-bootstrap.md
+        +-- 10-plan.md
+        +-- 20-implement.md
+        +-- 30-review.md
+        +-- 40-verify.md
+        +-- state.json
 ```
 
-주의할 점은 `.opencode/skill/`입니다. 이 Harness 템플릿은 command-like project skills를 `.opencode/skill/` 아래에 둡니다. Claude 전용 `commands/` 디렉터리를 만들지 않습니다.
+주의할 점은 `.opencode/skills/`입니다. 이 Harness 템플릿은 project-local skills를 `.opencode/skills/<skill-name>/SKILL.md` 구조로 둡니다. 단수 `.opencode/skill/` 디렉터리나 Claude 전용 `commands/` 디렉터리를 만들지 않습니다.
 
 ## 6. `grill-me` Skill로 프로젝트 지식 채우기
 
@@ -116,7 +141,11 @@ project/
 ```powershell
 python scripts/execute.py --help
 python -m py_compile scripts/execute.py scripts/hooks/*.py
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1
+python -m pytest scripts/test_execute.py -q
 ```
+
+`pytest`가 없는 환경에서는 마지막 명령을 생략할 수 있습니다. Windows에서는 PowerShell hook 검증을 먼저 확인하고, Python hook은 non-Windows 환경을 위한 portable fallback으로 유지합니다.
 
 확인할 내용:
 

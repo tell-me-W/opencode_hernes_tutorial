@@ -30,8 +30,12 @@ project/
 |   +-- skills/
 +-- scripts/
 |   +-- execute.py
+|   +-- test_execute.py
 |   +-- hooks/
+|   +-- success/
 +-- phases/
+    +-- _template/
+        +-- index.json
 ```
 
 ## 강의의 핵심 관점

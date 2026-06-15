@@ -25,6 +25,7 @@ Phase:
 ```
 
 신규 기능은 기능 단위와 검증 단위를 작게 나눕니다. 도메인 동작, UI, persistence, 권한처럼 실패 원인이 달라지는 영역은 phase를 분리하는 편이 좋습니다.
+실제 실행 구조에서는 이 목록을 `phases/{task-name}/index.json`에 step manifest로 옮깁니다. 각 step은 `id`, `file`, `type`, `requires`를 갖고, 필요한 경우 `success_hooks`로 추가 성공 조건을 연결합니다.
 
 ### 버그 수정
 
@@ -112,6 +113,16 @@ phase 파일이 준비되면 `/harness` skill에 대상 phase 디렉터리를 �
 /harness phases/todo-list
 ```
 
+runner를 직접 확인해야 한다면 다음 명령을 사용합니다.
+
+```powershell
+python scripts/execute.py phases/todo-list status
+python scripts/execute.py phases/todo-list approve
+python scripts/execute.py phases/todo-list run --max-retries 3
+```
+
+작업 단위마다 commit이 필요하면 git 사용자 정보가 설정된 repo에서 `--git-commits`를 사용할 수 있습니다. task별 branch를 분리하려면 `--branch-prefix harness`처럼 prefix를 지정합니다.
+
 승인 후 agent는 현재 phase의 범위 안에서만 작업합니다. 작업 중 safety hook에 막히거나, 완료 기준을 만족할 수 없거나, 문서끼리 충돌하거나, `CRITICAL` 규칙과 충돌하거나, credential 또는 destructive approval이 필요하면 임의로 우회하지 않고 사용자에게 돌아옵니다.
 
 ## 5. Review Skill로 변경사항 검토
@@ -151,6 +162,7 @@ Verification still needs npm test after the fix.
 - 구조 변경: `docs/ARCHITECTURE.md`
 - 의사결정 변경: `docs/ADR.md`
 - UI 규칙 변경: `docs/UI_GUIDE.md`
+- 실행 순서 또는 step 의존성 변경: `phases/{task-name}/index.json`
 - 진행 상태 변경: `phases/{task-name}/state.json`
 
 Harness의 목적은 한 번의 작업을 끝내는 데서 멈추지 않습니다. 다음 agent가 이어받아도 같은 기준으로 판단할 수 있게 만드는 것이 최종 목표입니다.

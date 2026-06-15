@@ -15,7 +15,7 @@ OpenCode를 단순 코드 생성 도구로만 사용하면 agent가 요구사항
 - `docs/`: 프로젝트 지식과 장기 기억
 - `AGENTS.md`: agent가 먼저 읽는 프로젝트 작업 규칙
 - `.opencode/skills/`: 프로젝트 안에서 재사용할 작업 절차
-- `scripts/execute.py`: phase 실행과 상태를 관리하는 runner
+- `scripts/execute.py`: manifest 기반 phase/step 실행과 상태를 관리하는 runner
 - `scripts/hooks/`: 위험한 실행 흐름을 막는 안전장치
 - `phases/`: 승인 가능한 작은 작업 단위
 
