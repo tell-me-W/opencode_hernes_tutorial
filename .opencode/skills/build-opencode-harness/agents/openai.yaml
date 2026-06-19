@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build OpenCode Harness"
+  short_description: "Install a manifest-driven OpenCode project harness"
+  default_prompt: "Use $build-opencode-harness to install a manifest-driven phase harness in this project."

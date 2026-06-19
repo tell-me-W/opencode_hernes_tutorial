@@ -1,0 +1,49 @@
+{
+  "steps": [
+    {
+      "id": "00-bootstrap",
+      "file": "00-bootstrap.md",
+      "type": "agent",
+      "requires": [],
+      "success_hooks": []
+    },
+    {
+      "id": "10-characterize",
+      "file": "10-characterize.md",
+      "type": "agent",
+      "requires": ["00-bootstrap"],
+      "success_hooks": [],
+      "commit_after": true
+    },
+    {
+      "id": "20-plan-boundary",
+      "file": "20-plan-boundary.md",
+      "type": "agent",
+      "requires": ["10-characterize"],
+      "success_hooks": []
+    },
+    {
+      "id": "30-refactor",
+      "file": "30-refactor.md",
+      "type": "agent",
+      "requires": ["20-plan-boundary"],
+      "success_hooks": [],
+      "commit_after": true
+    },
+    {
+      "id": "40-update-callers",
+      "file": "40-update-callers.md",
+      "type": "agent",
+      "requires": ["30-refactor"],
+      "success_hooks": [],
+      "commit_after": true
+    },
+    {
+      "id": "50-verify",
+      "file": "50-verify.md",
+      "type": "verify",
+      "requires": ["40-update-callers"],
+      "success_hooks": []
+    }
+  ]
+}

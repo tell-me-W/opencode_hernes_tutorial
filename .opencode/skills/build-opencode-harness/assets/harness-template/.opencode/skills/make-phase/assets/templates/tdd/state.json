@@ -1,0 +1,10 @@
+{
+  "task": "{task-name}",
+  "mode": "agent-executes-alone",
+  "approved_by_user": false,
+  "current_phase": null,
+  "completed": [],
+  "blocked": null,
+  "failures": [],
+  "steps": {}
+}

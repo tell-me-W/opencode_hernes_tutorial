@@ -1,0 +1,41 @@
+{
+  "steps": [
+    {
+      "id": "00-bootstrap",
+      "file": "00-bootstrap.md",
+      "type": "agent",
+      "requires": [],
+      "success_hooks": []
+    },
+    {
+      "id": "10-plan",
+      "file": "10-plan.md",
+      "type": "agent",
+      "requires": ["00-bootstrap"],
+      "success_hooks": []
+    },
+    {
+      "id": "20-test",
+      "file": "20-test.md",
+      "type": "agent",
+      "requires": ["10-plan"],
+      "success_hooks": [],
+      "commit_after": true
+    },
+    {
+      "id": "30-implement",
+      "file": "30-implement.md",
+      "type": "agent",
+      "requires": ["20-test"],
+      "success_hooks": [],
+      "commit_after": true
+    },
+    {
+      "id": "40-verify",
+      "file": "40-verify.md",
+      "type": "verify",
+      "requires": ["30-implement"],
+      "success_hooks": []
+    }
+  ]
+}
