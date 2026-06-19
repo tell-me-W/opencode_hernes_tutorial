@@ -53,6 +53,10 @@ Harness 템플릿을 적용하기 전에 OpenCode가 사용할 보조 skill을 �
 - `build-opencode-harness`: Harness 구조를 설치하고 병합하는 skill
 - `grill-me`: 빈 요구사항 문서를 질문으로 채우기 위한 skill
 
+프로젝트에 설치되는 운영 skill:
+- `make-phase`: 요구사항을 `phases/{task-name}/` 아래의 검증 가능한 phase 파일로 변환하는 skill
+- `run-phase`: 승인된 phase만 `scripts/execute.py` runner로 실행하는 skill
+
 
 권장 설치 방식은 skill을 OpenCode skills dir에 넣는 것입니다.
 
@@ -84,9 +88,13 @@ project/
 |   +-- UI_GUIDE.md
 +-- .opencode/
 |   +-- skills/
-|       +-- harness/
+|       +-- make-phase/
 |       |   +-- SKILL.md
-|       +-- review/
+|       |   +-- assets/
+|       |       +-- templates/
+|       |           +-- tdd/
+|       |           +-- refactoring/
+|       +-- run-phase/
 |           +-- SKILL.md
 +-- scripts/
 |   +-- execute.py
@@ -114,12 +122,13 @@ project/
         +-- 00-bootstrap.md
         +-- 10-plan.md
         +-- 20-implement.md
-        +-- 30-review.md
-        +-- 40-verify.md
+        +-- 30-verify.md
         +-- state.json
 ```
 
 주의할 점은 `.opencode/skills/`입니다. 이 Harness 템플릿은 project-local skills를 `.opencode/skills/<skill-name>/SKILL.md` 구조로 둡니다. 단수 `.opencode/skill/` 디렉터리나 Claude 전용 `commands/` 디렉터리를 만들지 않습니다.
+
+`build-opencode-harness`는 초기 설치와 병합만 담당합니다. 설치 이후 반복 운영은 project-local skill인 `make-phase`와 `run-phase`가 맡습니다. `make-phase`는 phase 설계까지만 만들고 실행하지 않으며, `run-phase`는 사용자가 승인한 phase만 실행합니다.
 
 ## 6. `grill-me` Skill로 프로젝트 지식 채우기
 

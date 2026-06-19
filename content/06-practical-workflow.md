@@ -20,8 +20,7 @@ Phase:
 31-domain-implement_B: TODO 완료 도메인 구현
 40-ui-implement_A: TODO 입력 UI 구현
 41-ui-implement_B: TODO 완료 UI 구현
-50-review: diff와 done criteria 검토
-60-verify: 테스트, 빌드, 수동 검증
+50-verify: 테스트, 빌드, 수동 검증
 ```
 
 신규 기능은 기능 단위와 검증 단위를 작게 나눕니다. 도메인 동작, UI, persistence, 권한처럼 실패 원인이 달라지는 영역은 phase를 분리하는 편이 좋습니다.
@@ -38,8 +37,7 @@ Phase:
 10-reproduce: 실패를 재현하는 테스트 또는 수동 재현 절차 작성
 20-regression-test: 새로고침 후 완료 상태 유지 회귀 테스트 작성
 30-fix: persistence 상태 저장/복원 로직 수정
-40-review: 수정 범위와 부작용 검토
-50-verify: 회귀 테스트, 관련 테스트, 수동 새로고침 검증
+40-verify: 회귀 테스트, 관련 테스트, 수동 새로고침 검증
 ```
 
 버그 수정은 바로 고치기보다 먼저 재현 조건을 고정합니다. 가능하면 실패하는 회귀 테스트를 먼저 만들고, 테스트가 통과하도록 수정합니다.
@@ -56,8 +54,7 @@ Phase:
 20-plan-boundary: 이동할 모듈 경계와 public API 설계
 30-extract-domain: TODO 상태 변경 로직을 도메인 모듈로 이동
 40-update-callers: UI 컴포넌트가 새 도메인 API를 사용하도록 수정
-50-review: 외부 동작 변화와 architecture 규칙 위반 여부 검토
-60-verify: 기존 테스트, characterization test, 수동 UI 검증
+50-verify: 기존 테스트, characterization test, 수동 UI 검증
 ```
 
 리팩토링은 새 기능을 추가하는 작업이 아니라 외부 동작을 유지하면서 내부 구조를 바꾸는 작업입니다. 따라서 동작을 보호하는 테스트와 모듈 경계 확인이 먼저 와야 합니다.
@@ -100,17 +97,20 @@ Manual Verification
 - Refresh the page and confirm expected persistence behavior.
 ```
 
-실행 후에는 실제로 수행한 명령과 결과를 phase 기록이나 review summary에 남깁니다.
+실행 후에는 실제로 수행한 명령과 결과를 phase 기록이나 state에 남깁니다.
 
-## 4. Skill 기반 Phase 실행
+## 4. `make-phase`와 `run-phase` 기반 Phase 운영
 
-phase 파일이 준비되면 `/harness` skill에 대상 phase 디렉터리를 넘겨 실행 흐름을 맡깁니다. `/harness`는 phase 상태를 확인하고, 필요한 경우 `status`, `approve`, `run` 흐름을 순서대로 안내하거나 실행합니다.
+요구사항이 준비되면 먼저 `make-phase` skill로 phase 파일을 만듭니다. `make-phase`는 `AGENTS.md`와 docs를 읽고 `phases/{task-name}/` 아래에 실행 가능한 작업 계약을 만들지만, 직접 실행하지는 않습니다.
+
+phase 파일이 준비되고 사용자가 승인하면 `run-phase` skill에 대상 phase 디렉터리를 넘겨 실행 흐름을 맡깁니다. `run-phase`는 phase 상태를 확인하고, 필요한 경우 `status`, `approve`, `run` 흐름을 순서대로 안내하거나 실행합니다.
 
 
 예시:
 
 ```text
-/harness phases/todo-list
+/make-phase "TODO 추가와 완료 처리 기능을 phase로 나눠줘"
+/run-phase phases/todo-list
 ```
 
 runner를 직접 확인해야 한다면 다음 명령을 사용합니다.
@@ -121,40 +121,11 @@ python scripts/execute.py phases/todo-list approve
 python scripts/execute.py phases/todo-list run --max-retries 3
 ```
 
-작업 단위마다 commit이 필요하면 git 사용자 정보가 설정된 repo에서 `--git-commits`를 사용할 수 있습니다. task별 branch를 분리하려면 `--branch-prefix harness`처럼 prefix를 지정합니다.
+개발 관련 step은 `index.json`에서 `"commit_after": true`로 관리합니다. Agent step이 코드, 테스트, 설정, 스크립트, migration, 프로젝트 문서를 바꿨다면 완료 처리 전에 phase-owned files만 commit하고, commit hash나 commit하지 않은 이유를 `state.json`에 남깁니다. `--git-commits`는 clean worktree에서 해당 step이 phase-owned files만 바꾸는 것이 확실할 때만 제한적으로 사용합니다. task별 branch를 분리하려면 `--branch-prefix harness`처럼 prefix를 지정합니다.
 
 승인 후 agent는 현재 phase의 범위 안에서만 작업합니다. 작업 중 safety hook에 막히거나, 완료 기준을 만족할 수 없거나, 문서끼리 충돌하거나, `CRITICAL` 규칙과 충돌하거나, credential 또는 destructive approval이 필요하면 임의로 우회하지 않고 사용자에게 돌아옵니다.
 
-## 5. Review Skill로 변경사항 검토
-
-Review는 스타일 지적보다 correctness finding을 우선합니다. 리뷰 기준은 phase의 done criteria, PRD, Architecture, ADR입니다.
-`https://github.com/tell-me-W/work_temp/blob/main/skill/build-opencode-harness/assets/harness-template/.opencode/skills/review/SKILL.md`
-
-리뷰 입력:
-
-- `AGENTS.md`
-- 관련 docs
-- 현재 phase 파일
-- `git status --short --branch`
-- `git diff --stat`
-- `git diff`
-
-보고 형식은 findings first가 좋습니다.
-
-```md
-## Findings
-
-- [Important] src/todo/domain.ts:42 Empty TODO text is accepted.
-  PRD says empty TODO items must be rejected.
-  Add a regression test and reject blank input before creating the item.
-
-## Summary
-
-Reviewed the todo-list phase against PRD and done criteria.
-Verification still needs npm test after the fix.
-```
-
-## 6. Project Brain과 Phase State 업데이트
+## 5. Project Brain과 Phase State 업데이트
 
 작업 중 바뀐 사실은 문서와 state에 남깁니다.
 

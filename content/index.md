@@ -45,5 +45,5 @@ OpenCode Harness는 agent에게 더 많은 자유를 주는 구조가 아닙니�
 - 먼저 문서로 판단 기준을 만든다.
 - 작업을 작은 phase로 나눈다.
 - 사용자가 phase 설계를 승인한 뒤 실행한다.
-- hook과 review로 결과를 검증한다.
+- hook과 verification으로 결과를 검증한다.
 - 수정된 내용을 다시 docs에 update 한다.

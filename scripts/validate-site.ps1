@@ -34,6 +34,7 @@ $styles = Get-Content -LiteralPath (Join-Path $root "styles.css") -Raw -Encoding
 $app = Get-Content -LiteralPath (Join-Path $root "app.js") -Raw -Encoding UTF8
 $workflow = Get-Content -LiteralPath (Join-Path $root ".github/workflows/pages.yml") -Raw -Encoding UTF8
 $part6 = Get-Content -LiteralPath (Join-Path $root "content/06-practical-workflow.md") -Raw -Encoding UTF8
+$contentIndex = Get-Content -LiteralPath (Join-Path $root "content/index.md") -Raw -Encoding UTF8
 
 function Get-MarkdownSectionHeadings {
   param([string]$Markdown)
@@ -60,6 +61,9 @@ function Get-MarkdownSectionHeadings {
 }
 
 $part6Sections = Get-MarkdownSectionHeadings -Markdown $part6
+$localMarkdownLinksRoute = $contentIndex.Contains('(00-introduction.md)') -and $app.Contains('function renderMarkdownLink') -and $app.Contains('const localMarkdown =') -and $app.Contains('href="#') -and $app.Contains('chapterId')
+
+$part3CommandsMatch = $app.Contains('python -m py_compile scripts/execute.py scripts/hooks/*.py') -and $app.Contains('powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1') -and $app.Contains('python -m pytest scripts/test_execute.py -q')
 
 $checks = @(
   @{ Name = 'Course title landmark'; Passed = $index.Contains('site-title') },
@@ -71,8 +75,10 @@ $checks = @(
   @{ Name = 'Markdown renderer'; Passed = $app.Contains('function renderMarkdown') },
   @{ Name = 'Left nested section navigation'; Passed = $app.Contains('function extractChapterSections') -and $app.Contains('subchapter-list') },
   @{ Name = 'Nested section navigation styles'; Passed = $styles.Contains('.subchapter-list') -and $styles.Contains('.subchapter-link') },
+  @{ Name = 'Local markdown chapter links route through hash navigation'; Passed = $localMarkdownLinksRoute },
+  @{ Name = 'Part 3 support panel mirrors install validation commands'; Passed = $part3CommandsMatch },
   @{ Name = 'Right body TOC removed'; Passed = -not $index.Contains('section-links') -and -not $index.Contains('본문 목차') -and -not $app.Contains('sectionLinks') -and -not $styles.Contains('#section-links') },
-  @{ Name = 'Part 6 sidebar sections ignore code fences'; Passed = $app.Contains('inCodeFence') -and $part6Sections.Count -eq 6 -and -not ($part6Sections -contains 'Findings') -and -not ($part6Sections -contains 'Summary') },
+  @{ Name = 'Part 6 sidebar sections ignore code fences'; Passed = $app.Contains('inCodeFence') -and $part6Sections.Count -eq 5 -and -not ($part6Sections -contains 'Findings') -and -not ($part6Sections -contains 'Summary') },
   @{ Name = 'GitHub Pages deployment'; Passed = $workflow.Contains('actions/deploy-pages') }
 )
 

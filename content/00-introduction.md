@@ -29,6 +29,6 @@ Harness는 이 흐름을 반대로 만듭니다.
 2. 작업을 phase로 나누고 완료 기준을 씁니다.
 3. 사용자가 phase 설계를 승인합니다.
 4. Agent는 승인된 범위 안에서만 작업합니다.
-5. 검증과 review를 거쳐 다음 phase로 넘어갑니다.
+5. hook과 verification 결과를 확인한 뒤 다음 phase로 넘어갑니다.
 
 이 강의에서 계속 반복할 메시지는 단순합니다. OpenCode Harness는 agent를 빠르게 움직이게 하는 장치가 아니라, agent가 엉뚱한 방향으로 빠지지 않게 하는 작업 레일입니다.

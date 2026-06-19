@@ -41,8 +41,13 @@ const chapters = [
     group: "Part 3: Harness 세팅",
     title: "Harness 세팅",
     summary: ["기존 프로젝트를 보존하면서 Harness 템플릿과 보조 skill을 적용합니다."],
-    outputs: ["프로젝트 로컬 skill 배치", "Harness 템플릿 설치 결과"],
-    commands: ["python scripts/execute.py --help", "python -m py_compile scripts/execute.py"],
+    outputs: ["프로젝트 로컬 skill 배치", "make-phase 템플릿 구조", "Harness 템플릿 설치 결과"],
+    commands: [
+      "python scripts/execute.py --help",
+      "python -m py_compile scripts/execute.py scripts/hooks/*.py",
+      "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1",
+      "python -m pytest scripts/test_execute.py -q",
+    ],
   },
   {
     id: "04-phase-workflow",
@@ -67,7 +72,7 @@ const chapters = [
     file: "content/06-practical-workflow.md",
     group: "Part 6: 실전 워크플로우",
     title: "실전 워크플로우",
-    summary: ["요구사항을 phase로 변환하고 review, verify까지 이어가는 실습 흐름입니다."],
+    summary: ["요구사항을 phase로 변환하고 승인된 phase를 검증까지 이어가는 실습 흐름입니다."],
     outputs: ["기능/버그/리팩토링 phase 예시", "검증과 문서 업데이트 체크리스트"],
     commands: ["npm test", "npm run build", "git diff --stat"],
   },
@@ -106,9 +111,21 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function renderMarkdownLink(label, href) {
+  const localMarkdown = /^\.?\/?([^/#?]+)\.md(?:#([^?]+))?$/.exec(href);
+  if (localMarkdown) {
+    const chapterId = localMarkdown[1];
+    return `<a href="#${chapterId}">${label}</a>`;
+  }
+
+  return `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${label}</a>`;
+}
+
 function renderInline(value) {
   let html = escapeHtml(value);
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) =>
+    renderMarkdownLink(label, href),
+  );
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
   html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   return html;
