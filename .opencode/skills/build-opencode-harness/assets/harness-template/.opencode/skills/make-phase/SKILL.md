@@ -14,7 +14,7 @@ Create a small, verifiable phase plan for an installed OpenCode harness project.
 3. Turn the user request into one task directory: `phases/{task-name}/`.
 4. Create or update `index.json`, phase files, and `state.json`.
 5. Stop after the phase design is written. Do not implement, run tests, approve, or execute the phase.
-6. Summarize the phase plan and ask the user to approve before `run-phase` is used.
+6. Summarize the phase plan and ask the user to approve before `/run-phase` is used.
 
 ## Task Naming
 
@@ -49,7 +49,7 @@ If the request is ambiguous, choose `tdd` when behavior changes are possible. Ch
 
 Copy the selected template into `phases/{task-name}/`, then replace placeholders and adjust step names only as needed. Preserve the selected template's test-first or characterization-first ordering.
 
-Use `agent` for Codex/OpenCode work, `command` for deterministic shell command blocks, and `verify` for verification command blocks.
+Use `agent` for work that OpenCode should perform through `opencode run` after approval, `command` for deterministic shell command blocks, and `verify` for verification command blocks.
 
 Set `"commit_after": true` on every development-related step that can change code, tests, configuration, scripts, migrations, or project docs. Leave it false or omit it for planning, bootstrap, and pure verification steps.
 
@@ -83,7 +83,7 @@ Create `state.json` with:
 ```json
 {
   "task": "{task-name}",
-  "mode": "agent-executes-alone",
+  "mode": "opencode-orchestrated",
   "approved_by_user": false,
   "current_phase": null,
   "completed": [],

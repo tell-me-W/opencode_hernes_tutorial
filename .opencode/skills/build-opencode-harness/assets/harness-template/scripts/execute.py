@@ -34,7 +34,7 @@ def read_state(task_dir):
         task_dir / "state.json",
         {
             "task": task_dir.name,
-            "mode": "agent-executes-alone",
+            "mode": "opencode-orchestrated",
             "approved_by_user": False,
             "current_phase": None,
             "completed": [],
@@ -193,6 +193,107 @@ def run_command_block(lang, command):
     return subprocess.run(command, cwd=ROOT, shell=True)
 
 
+def build_agent_prompt(task_dir, state, step):
+    docs = []
+    for path in [
+        ROOT / "AGENTS.md",
+        ROOT / "docs" / "PRD.md",
+        ROOT / "docs" / "ARCHITECTURE.md",
+        ROOT / "docs" / "ADR.md",
+        ROOT / "docs" / "UI_GUIDE.md",
+    ]:
+        if path.exists():
+            docs.append(f"## {path.relative_to(ROOT)}\n{path.read_text(encoding='utf-8')}")
+
+    manifest_path = task_dir / "index.json"
+    manifest_text = manifest_path.read_text(encoding="utf-8") if manifest_path.exists() else "{}"
+    phase_text = step["path"].read_text(encoding="utf-8")
+    state_text = json.dumps(state, indent=2, ensure_ascii=False)
+    return "\n\n".join(
+        [
+            "You are running one approved OpenCode harness step.",
+            "Stay within this step's Goal, Instructions, Out of Scope, Done Criteria, and Verification.",
+            "Do not expand scope beyond AGENTS.md, docs/, or the approved phase file.",
+            "If blocked by credentials, destructive approval, impossible done criteria, conflicting docs, or hook failures, stop and report the block.",
+            "After completing implementation work, run the verification described by the phase file.",
+            "Project context:",
+            *docs,
+            f"## {manifest_path}\n{manifest_text}",
+            f"## {task_dir / 'state.json'}\n{state_text}",
+            f"## Current step: {step['id']} ({step['file']})\n{phase_text}",
+        ]
+    )
+
+
+def run_agent_step(task_dir, state, step, context, attempts, dangerously_skip_permissions):
+    output_dir = task_dir / "agent-output"
+    output_dir.mkdir(exist_ok=True)
+    output_file = output_dir / f"{step['id']}.jsonl"
+    output_rel = output_file.relative_to(task_dir).as_posix()
+    prompt = build_agent_prompt(task_dir, state, step)
+    opencode = os.environ.get("OPENCODE_BIN") or shutil.which("opencode")
+    if not opencode:
+        return (
+            {
+                "phase": step["id"],
+                "agent_runner": "opencode",
+                "exit_code": 127,
+                "attempt": attempts,
+                "output_file": output_rel,
+                "reason": "opencode executable not found",
+            },
+            output_file,
+        )
+
+    command = [
+        opencode,
+        "run",
+        prompt,
+        "--format",
+        "json",
+        "--dir",
+        str(ROOT),
+    ]
+    if dangerously_skip_permissions:
+        command.append("--dangerously-skip-permissions")
+
+    command_log = os.environ.get("HARNESS_AGENT_COMMAND_LOG")
+    if command_log:
+        Path(command_log).write_text(
+            subprocess.list2cmdline(command),
+            encoding="utf-8",
+        )
+
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if attempts == 1:
+        output_file.write_text("", encoding="utf-8")
+    with output_file.open("a", encoding="utf-8") as handle:
+        if result.stdout:
+            handle.write(result.stdout)
+            if not result.stdout.endswith("\n"):
+                handle.write("\n")
+    if result.returncode == 0:
+        return None, output_file
+
+    failed = {
+        "phase": step["id"],
+        "agent_runner": "opencode",
+        "exit_code": result.returncode,
+        "attempt": attempts,
+        "output_file": output_rel,
+    }
+    if result.stderr:
+        failed["stderr"] = result.stderr.strip()
+    return failed, output_file
+
+
 def run_git(args, check=False):
     return subprocess.run(
         ["git", *args],
@@ -236,7 +337,7 @@ def commit_step(step):
     status = run_git(["status", "--porcelain"], check=True).stdout.strip()
     if not status:
         print(f"git commit skipped: no changes for {step['id']}")
-        return
+        return None, "no changes"
 
     for line in status.splitlines():
         path = line[3:].strip()
@@ -246,7 +347,9 @@ def commit_step(step):
             run_git(["add", "--", path], check=True)
     message = f"harness: complete {step['id']}"
     run_git(["commit", "-m", message], check=True)
+    commit = run_git(["rev-parse", "--short", "HEAD"], check=True).stdout.strip()
     print(message)
+    return commit, None
 
 
 def initialize_step_state(state, step):
@@ -302,7 +405,15 @@ def verify_dependencies(step, completed):
         )
 
 
-def execute_step(task_dir, state, step, max_retries, git_commits):
+def execute_step(
+    task_dir,
+    state,
+    step,
+    max_retries,
+    git_commits,
+    agent_runner,
+    dangerously_skip_permissions,
+):
     if not step["path"].exists():
         raise SystemExit(f"BLOCKED: missing step file {step['path']}")
 
@@ -318,7 +429,18 @@ def execute_step(task_dir, state, step, max_retries, git_commits):
     run_hook("pre_phase", context)
     run_hook("validate_phase", context)
 
-    if step["type"] == "agent":
+    if step["type"] == "agent" and step.get("commit_after") and not git_commits:
+        failure = {
+            "phase": step["id"],
+            "reason": "commit_after agent step requires --git-commits",
+        }
+        state.setdefault("failures", []).append(failure)
+        state["blocked"] = failure
+        mark_step(state, step, "blocked", blocked_at=utc_now(), reason=failure["reason"])
+        write_state(task_dir, state)
+        raise SystemExit(f"BLOCKED: {failure['reason']}")
+
+    if step["type"] == "agent" and agent_runner == "none":
         failure = {"phase": step["id"], "reason": "agent step requires external agent execution"}
         state.setdefault("failures", []).append(failure)
         state["blocked"] = failure
@@ -340,16 +462,27 @@ def execute_step(task_dir, state, step, max_retries, git_commits):
         write_state(task_dir, state)
 
         failed = None
-        for lang, command in commands:
-            result = run_command_block(lang, command)
-            if result.returncode != 0:
-                failed = {
-                    "phase": step["id"],
-                    "command": command,
-                    "exit_code": result.returncode,
-                    "attempt": attempts,
-                }
-                break
+        agent_output = None
+        if step["type"] == "agent":
+            failed, agent_output = run_agent_step(
+                task_dir,
+                state,
+                step,
+                context,
+                attempts,
+                dangerously_skip_permissions,
+            )
+        else:
+            for lang, command in commands:
+                result = run_command_block(lang, command)
+                if result.returncode != 0:
+                    failed = {
+                        "phase": step["id"],
+                        "command": command,
+                        "exit_code": result.returncode,
+                        "attempt": attempts,
+                    }
+                    break
 
         if failed is None:
             for success_hook in step.get("success_hooks", []):
@@ -379,23 +512,57 @@ def execute_step(task_dir, state, step, max_retries, git_commits):
                 }
 
         if failed is None:
-            state.setdefault("completed", []).append(step["id"])
+            commit = None
+            commit_skipped_reason = None
+            if step["id"] not in state.setdefault("completed", []):
+                state["completed"].append(step["id"])
             state["current_phase"] = None
+            output_extra = {}
+            if agent_output is not None:
+                output_extra = {
+                    "agent_runner": agent_runner,
+                    "output_file": agent_output.relative_to(task_dir).as_posix(),
+                    "exit_code": 0,
+                }
             mark_step(
                 state,
                 step,
                 "completed",
                 attempts=attempts,
                 completed_at=utc_now(),
+                **output_extra,
             )
             write_state(task_dir, state)
             if git_commits:
-                commit_step(step)
+                commit, commit_skipped_reason = commit_step(step)
+                if commit:
+                    state.setdefault("commits", {})[step["id"]] = commit
+                    mark_step(state, step, "completed", commit=commit)
+                elif commit_skipped_reason:
+                    mark_step(
+                        state,
+                        step,
+                        "completed",
+                        commit_skipped_reason=commit_skipped_reason,
+                    )
+                write_state(task_dir, state)
             return
 
         state.setdefault("failures", []).append(failed)
         state["blocked"] = failed
-        mark_step(state, step, "failed", attempts=attempts, last_failure=failed)
+        failure_extra = {}
+        if "output_file" in failed:
+            failure_extra["output_file"] = failed["output_file"]
+        if "exit_code" in failed:
+            failure_extra["exit_code"] = failed["exit_code"]
+        mark_step(
+            state,
+            step,
+            "failed",
+            attempts=attempts,
+            last_failure=failed,
+            **failure_extra,
+        )
         write_state(task_dir, state)
 
         if attempts >= max_retries:
@@ -405,7 +572,14 @@ def execute_step(task_dir, state, step, max_retries, git_commits):
         print(f"retrying {step['id']}: attempt {attempts + 1}/{max_retries}")
 
 
-def run(task_dir, max_retries, git_commits, branch_prefix):
+def run(
+    task_dir,
+    max_retries,
+    git_commits,
+    branch_prefix,
+    agent_runner,
+    dangerously_skip_permissions,
+):
     state = read_state(task_dir)
     if not state.get("approved_by_user"):
         raise SystemExit("BLOCKED: phase design is not approved. Set approved_by_user=true after user approval.")
@@ -428,7 +602,15 @@ def run(task_dir, max_retries, git_commits, branch_prefix):
             print("DONE: all steps completed")
             return
 
-        execute_step(task_dir, state, step, max_retries=max_retries, git_commits=git_commits)
+        execute_step(
+            task_dir,
+            state,
+            step,
+            max_retries=max_retries,
+            git_commits=git_commits,
+            agent_runner=agent_runner,
+            dangerously_skip_permissions=dangerously_skip_permissions,
+        )
         state = read_state(task_dir)
 
 
@@ -450,6 +632,17 @@ def main():
         help="Commit step changes after each completed step; requires a clean worktree before run starts.",
     )
     parser.add_argument("--branch-prefix", help="Checkout or create <prefix>/<task-name> before running.")
+    parser.add_argument(
+        "--agent-runner",
+        choices=["opencode", "none"],
+        default="opencode",
+        help="Runner for agent steps. Use none to block for external agent execution.",
+    )
+    parser.add_argument(
+        "--dangerously-skip-permissions",
+        action="store_true",
+        help="Forward OpenCode's dangerous auto-approval flag to opencode run for agent steps.",
+    )
     args = parser.parse_args()
 
     if args.max_retries < 1:
@@ -469,6 +662,8 @@ def main():
             max_retries=args.max_retries,
             git_commits=args.git_commits,
             branch_prefix=args.branch_prefix,
+            agent_runner=args.agent_runner,
+            dangerously_skip_permissions=args.dangerously_skip_permissions,
         )
 
 

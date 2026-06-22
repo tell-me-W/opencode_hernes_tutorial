@@ -7,11 +7,11 @@ OpenCode를 단순 코드 생성 도구가 아니라, 문서와 phase를 기준�
 ## 목차
 
 1. [소개](00-introduction.md)
-2. [PART 1: 시작하기](01-getting-started.md)
-3. [PART 2: 프로젝트 지식 구조](02-project-knowledge.md)
-4. [PART 3: Harness 세팅](03-harness-setup.md)
-5. [PART 4: Phase 기반 개발](04-phase-workflow.md)
-6. [PART 5: 안전장치 설계](05-safety-design.md)
+2. [Layer 1: docs/ - 프로젝트의 뇌](01-getting-started.md)
+3. [Layer 2: AGENTS.md - 프로젝트의 헌법](02-project-knowledge.md)
+4. [Layer 3: 실행 엔진 세팅](03-harness-setup.md)
+5. [Layer 3: make-phase/run-phase + execute.py](04-phase-workflow.md)
+6. [Layer 4: Hooks - 자동 검증 장치](05-safety-design.md)
 7. [PART 6: 실전 워크플로우](06-practical-workflow.md)
 
 ## 최종 목표
@@ -28,6 +28,8 @@ project/
 |   +-- UI_GUIDE.md
 +-- .opencode/
 |   +-- skills/
+|       +-- make-phase/
+|       +-- run-phase/
 +-- scripts/
 |   +-- execute.py
 |   +-- test_execute.py
@@ -44,6 +46,6 @@ OpenCode Harness는 agent에게 더 많은 자유를 주는 구조가 아닙니�
 
 - 먼저 문서로 판단 기준을 만든다.
 - 작업을 작은 phase로 나눈다.
-- 사용자가 phase 설계를 승인한 뒤 실행한다.
+- 사용자가 phase 설계를 승인한 뒤 `opencode run` 기반 orchestrator로 실행한다.
 - hook과 verification으로 결과를 검증한다.
 - 수정된 내용을 다시 docs에 update 한다.
