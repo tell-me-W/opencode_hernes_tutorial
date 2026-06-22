@@ -1,6 +1,6 @@
 {
   "task": "{task-name}",
-  "mode": "agent-executes-alone",
+  "mode": "opencode-orchestrated",
   "approved_by_user": false,
   "current_phase": null,
   "completed": [],

@@ -90,7 +90,7 @@ Use `.opencode/skills/<skill-name>/SKILL.md` for project-local skills. Do not cr
 - Read all docs before designing phases.
 - Design phases with the user.
 - Do not execute until the user approves the phase design.
-- During execution, the agent works alone inside the approved phase scope.
+- During execution, approved `agent` steps are orchestrated through `opencode run` inside the approved phase scope.
 - Return to the user with completed steps, verification results, blocked state, and remaining risks after execution.
 - Stop only for hook blocks, impossible done criteria, conflicting docs, `CRITICAL` rule conflicts, credentials, or destructive approval.
 
@@ -134,8 +134,7 @@ can repair the build before continuing.
 
 Step behavior:
 
-- `agent`: validate the phase and then block for external OpenCode/Codex agent
-  execution. Do not let `execute.py` pretend to perform agent work.
+- `agent`: validate the approved phase, build a bounded prompt from the phase file and project docs, then call `opencode run <prompt> --format json --dir <project-root>`. Output is written to `phases/{task}/agent-output/{step-id}.jsonl`, and `state.json` records status, attempts, output file, exit code, commit, and failures. Use `--agent-runner none` only when you intentionally want the old external-execution block.
 - `command`: run shell command blocks from the phase file.
 - `verify`: run verification command blocks from the phase file.
 
@@ -146,6 +145,7 @@ python scripts/execute.py phases/my-task status
 python scripts/execute.py phases/my-task approve
 python scripts/execute.py phases/my-task run --max-retries 3
 python scripts/execute.py phases/my-task run --git-commits
+python scripts/execute.py phases/my-task run --agent-runner none
 python scripts/execute.py phases/my-task run --branch-prefix harness
 ```
 
@@ -161,7 +161,7 @@ Example Ant-gated step:
 }
 ```
 
-Use `--git-commits` only in a git repository with user name/email configured and a clean worktree before execution starts.
+Use `--git-commits` only in a git repository with user name/email configured and a clean worktree before execution starts. Agent steps with `"commit_after": true` block before calling OpenCode unless `--git-commits` is present. `--dangerously-skip-permissions` is available for OpenCode only when the user explicitly approves that risk.
 Use `--branch-prefix` when each task should run on its own branch.
 
 ## Phase Contract
@@ -180,6 +180,7 @@ Create phase files under `phases/{task-name}/`, not directly under `phases/`, ex
 
 - Do not overwrite an existing project brain without preserving local content.
 - Do not start execution before phase approval.
-- Do not treat `execute.py` as a replacement for agent work; `agent` steps block for external execution while `command` and `verify` steps run command blocks.
+- Do not run unapproved phase designs; automatic orchestration only applies after `approved_by_user` is true.
+- Do not pass `--dangerously-skip-permissions` unless the user explicitly approved it.
 - Do not bypass hooks when they block progress.
 - Do not create Claude-specific `commands/` files; OpenCode project-local skills belong under `.opencode/skills/<skill-name>/SKILL.md`.
