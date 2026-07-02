@@ -37,3 +37,7 @@ Find or add characterization tests for behavior that must not change. Prefer nar
 # Verification
 
 Run the characterization test command or document the exact manual check.
+
+# Commit
+
+Before marking this phase complete, commit only phase-owned changed files and record the short commit hash in `state.json`.

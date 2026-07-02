@@ -12,7 +12,13 @@ Create a small, verifiable phase plan for an installed OpenCode harness project.
 1. Confirm the project root contains `AGENTS.md`, `docs/`, `.opencode/skills/`, `scripts/execute.py`, and `phases/`.
 2. Read `AGENTS.md`, then `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/ADR.md`, and `docs/UI_GUIDE.md` when UI exists.
 3. Turn the user request into one task directory: `phases/{task-name}/`.
-4. Create or update `index.json`, phase files, and `state.json`.
+4. Create or update:
+   - `index.json`
+   - `00-bootstrap.md`
+   - `10-plan.md`
+   - one or more implementation phase files
+   - final verify phase file
+   - `state.json`
 5. Stop after the phase design is written. Do not implement, run tests, approve, or execute the phase.
 6. Summarize the phase plan and ask the user to approve before `/run-phase` is used.
 
@@ -36,7 +42,7 @@ Every phase file must include:
 - `Done Criteria`
 - `Verification`
 
-If verification is manual, write the exact manual checks.
+If verification is manual, write the exact manual checks. Do not write only "manual verification required".
 
 ## Template Selection
 
@@ -49,7 +55,7 @@ If the request is ambiguous, choose `tdd` when behavior changes are possible. Ch
 
 Copy the selected template into `phases/{task-name}/`, then replace placeholders and adjust step names only as needed. Preserve the selected template's test-first or characterization-first ordering.
 
-Use `agent` for work that OpenCode should perform through `opencode run` after approval, `command` for deterministic shell command blocks, and `verify` for verification command blocks.
+Use `command` only for deterministic shell command blocks that the runner may execute directly. Use `verify` for verification command blocks. Use `agent` for work that OpenCode should perform through `opencode run` after approval.
 
 Set `"commit_after": true` on every development-related step that can change code, tests, configuration, scripts, migrations, or project docs. Leave it false or omit it for planning, bootstrap, and pure verification steps.
 
@@ -101,4 +107,5 @@ Create `state.json` with:
 - Do not expand scope beyond `docs/PRD.md`.
 - Preserve existing phase files unless the user asked to revise that phase.
 - Ask the user when docs are missing, contradictory, or too vague to define done criteria.
+- Keep phases small enough that one agent can complete each phase safely.
 - Do not create a `review` phase unless the user explicitly asks for a separate review step.

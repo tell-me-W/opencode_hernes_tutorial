@@ -1,4 +1,4 @@
-# Layer 3: `make-phase` / `run-phase` / `execute.py`
+# Layer 3-2: `make-phase` / `run-phase` / `execute.py`
 
 ## 1. Phase 파일 구조
 

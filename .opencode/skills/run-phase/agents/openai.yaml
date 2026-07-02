@@ -1,4 +1,0 @@
-interface:
-  display_name: "Run Phase"
-  short_description: "Run approved OpenCode harness phases"
-  default_prompt: "Use $run-phase to inspect and run this approved phase directory."

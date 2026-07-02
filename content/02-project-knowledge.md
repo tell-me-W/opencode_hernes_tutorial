@@ -34,16 +34,3 @@ CRITICAL 규칙은 적을수록 좋습니다. 정말 멈춰야 하는 기준만 
 - credential, destructive approval, 문서 충돌이 있으면 멈춘다.
 
 이 규칙은 `make-phase`가 phase를 만들 때도, `run-phase`가 승인된 phase를 실행할 때도 기준이 됩니다.
-
-## 4. OpenCode 기준 용어
-
-Claude Code 기준 문서를 OpenCode로 옮길 때는 용어를 바꿔야 합니다.
-
-| Claude 기준 | OpenCode 기준 |
-| --- | --- |
-| `CLAUDE.md` | `AGENTS.md` |
-| `.claude/commands/` | `.opencode/skills/` |
-| `claude -p` | `opencode run` |
-| `.claude/settings.json` hooks | `scripts/hooks/*` + `execute.py` lifecycle hooks |
-
-Phase 생성 기능은 `/make-phase`, phase 실행 기능은 `/run-phase`로 설명합니다.

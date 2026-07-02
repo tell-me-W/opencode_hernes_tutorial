@@ -39,3 +39,7 @@ Make the minimal production change needed to pass the new tests. Keep the work i
 # Verification
 
 Run the narrow test command again, then run any broader command required by `docs/ARCHITECTURE.md`.
+
+# Commit
+
+Before marking this phase complete, commit only phase-owned changed files and record the short commit hash in `state.json`.

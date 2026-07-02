@@ -38,3 +38,7 @@ Perform the smallest internal restructuring that matches the approved boundary. 
 # Verification
 
 Run the characterization command and any narrow architecture checks from `docs/ARCHITECTURE.md`.
+
+# Commit
+
+Before marking this phase complete, commit only phase-owned changed files and record the short commit hash in `state.json`.
