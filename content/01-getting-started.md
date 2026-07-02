@@ -1,5 +1,9 @@
 # Layer 1: `docs/` - 프로젝트의 뇌
 
+`build-opencode-harness` skill 기준으로 Harness는 네 개의 층으로 구성됩니다.
+
+[build-opencode-harness skill 다운로드 (.zip)](downloads/build-opencode-harness.zip)
+
 ## 1. Layer 1의 역할
 
 Harness의 첫 번째 레이어는 `docs/`입니다. 이 폴더는 보기 좋은 문서 보관함이 아니라, OpenCode agent가 작업 전에 읽고 판단 기준으로 삼는 프로젝트의 뇌입니다.

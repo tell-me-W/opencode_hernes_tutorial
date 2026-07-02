@@ -117,6 +117,10 @@ function renderMarkdownLink(label, href) {
     return `<a href="#${chapterId}">${label}</a>`;
   }
 
+  if (/^\.?\/?downloads\/[A-Za-z0-9._-]+\.zip$/.test(href)) {
+    return `<a href="${escapeHtml(href)}" download>${label}</a>`;
+  }
+
   return `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${label}</a>`;
 }
 
