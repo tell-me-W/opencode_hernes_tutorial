@@ -514,6 +514,40 @@
       font-weight: 800;
     }
 
+    .reference-link {
+      display: block;
+      min-height: 172px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(34, 197, 94, 0.08)),
+        var(--surface);
+      color: inherit;
+      text-decoration: none;
+      box-shadow: 0 18px 36px var(--shadow);
+    }
+
+    .reference-link:hover {
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .reference-link strong {
+      display: block;
+      color: #ffffff;
+      font-size: 25px;
+      line-height: 1.25;
+    }
+
+    .reference-link span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted-2);
+      font-size: 19px;
+      line-height: 1.45;
+    }
+
     .source-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -991,6 +1025,30 @@ Skills / Commands / Tools
 Filesystem 및 실행환경</code></pre>
       </div>
       <p class="lead a" style="margin-top: 26px;">OpenCode는 프로젝트 파일과 실행환경을 사용하는 <span class="accent">Code Agent</span>다.</p>
+    </section>
+
+    <section class="slide wide" data-notes="여기서 빠뜨리면 안 되는 문서가 AGENTS.md입니다. OpenCode에서는 AGENTS.md가 Agent에게 프로젝트 지식과 작업 규칙을 전달하는 가장 앞단의 문서입니다. Claude Code 생태계에서는 CLAUDE.md가 비슷한 역할을 합니다. 예시로 multica-ai의 andrej-karpathy-skills 저장소에 있는 CLAUDE.md를 보면, LLM 코딩 실수를 줄이기 위한 행동 지침을 프로젝트 지침으로 정리합니다. 핵심은 가정 드러내기, 단순하게 구현하기, 필요한 부분만 바꾸기, 검증 가능한 목표로 실행하기입니다.">
+      <div class="eyebrow a">Project instructions</div>
+      <h2 class="a">AGENTS.md는 Agent가 먼저 읽는 프로젝트 헌법</h2>
+      <p class="lead a">Agent에게 “이 프로젝트에서는 어떻게 생각하고, 어디까지 바꾸고, 무엇으로 완료를 판단할지”를 알려주는 문서다.</p>
+      <div class="content compare a">
+        <div class="pane">
+          <h3>AGENTS.md에 담을 것</h3>
+          <ul class="bullets small">
+            <li>프로젝트 구조와 주요 문서 위치</li>
+            <li>작업 원칙과 금지사항</li>
+            <li>빌드·테스트·검증 명령</li>
+            <li>변경 범위와 완료 기준</li>
+          </ul>
+        </div>
+        <div class="pane">
+          <h3>참고 사례</h3>
+          <a class="reference-link" href="https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md" target="_blank" rel="noreferrer">
+            <strong>andrej-karpathy-skills / CLAUDE.md</strong>
+            <span>Andrej Karpathy의 LLM 코딩 통찰에서 영감을 받아, 흔한 LLM 코딩 실수를 줄이는 행동 지침을 정리한 대표 예시</span>
+          </a>
+        </div>
+      </div>
     </section>
 
     <section class="slide wide" data-notes="각 구성요소가 Harness에서 어떤 역할을 하는지 한 장으로 정리합니다. 특히 AGENTS.md는 지식과 규칙, Permission과 Hook은 통제와 검증에 가깝습니다.">

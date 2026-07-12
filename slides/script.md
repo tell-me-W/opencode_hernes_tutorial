@@ -38,9 +38,13 @@ AI가 생성한 보안 부채와 검증 부채가 곳곳에 들어가 있다면,
 
 AI를 잘 쓴다는 것은 많이 생성하는 것이 아니라 검증 가능한 결과를 만들게 하는 것입니다.
 
-## Slide 11-17. Chapter 2
+## Slide 11-18. Chapter 2
 
 OpenCode는 단순한 채팅 도구가 아니라 프로젝트 파일과 실행환경을 사용하는 Code Agent입니다. 사용자 요청은 Agent, Context와 Rules, Skills와 Commands, Tools, Filesystem을 거쳐 실제 작업이 됩니다.
+
+여기서 가장 먼저 짚어야 할 문서가 `AGENTS.md`입니다. OpenCode에서 `AGENTS.md`는 Agent가 먼저 읽는 프로젝트 헌법에 가깝습니다. 프로젝트 구조, 작업 원칙, 금지사항, 빌드와 테스트 방법, 완료 기준을 담아 Agent가 프로젝트 안에서 어떤 기준으로 움직여야 하는지 알려줍니다.
+
+Claude Code 생태계에서는 `CLAUDE.md`가 비슷한 역할을 합니다. 예시로 `multica-ai/andrej-karpathy-skills` 저장소의 `CLAUDE.md`를 소개할 수 있습니다. 이 문서는 Andrej Karpathy의 LLM 코딩 통찰에서 영감을 받아 만든 대표적인 지침 예시로, 흔한 LLM 코딩 실수를 줄이기 위해 "생각하고 구현하기", "단순하게 만들기", "필요한 부분만 바꾸기", "검증 가능한 목표로 실행하기" 같은 원칙을 정리합니다.
 
 구성요소를 나누어 보면 Harness와 연결되는 지점이 보입니다. `AGENTS.md`는 프로젝트 지식과 작업 규칙을 담고, Agent는 역할과 권한을 가진 작업자입니다. Skill은 재사용 가능한 지식이고, Command는 반복 작업의 진입점입니다. Tool은 실제 작업 수단이고, Permission과 Hook은 통제와 검증을 담당합니다.
 
@@ -48,7 +52,7 @@ OpenCode는 단순한 채팅 도구가 아니라 프로젝트 파일과 실행�
 
 이제 이 구성요소들을 실제 프로젝트에서 Phase 기반 Harness로 어떻게 연결하는지 살펴봅니다.
 
-## Slide 18-32. Chapter 3
+## Slide 19-33. Chapter 3
 
 자유로운 Agent 실행은 편하지만 위험합니다. "기능을 구현해줘"라는 요청만 있으면 Agent가 범위를 해석하고, 여러 파일을 수정하고, 완료 기준까지 스스로 판단할 수 있습니다. 사용자는 마지막에야 결과가 맞는지 확인하게 됩니다.
 
