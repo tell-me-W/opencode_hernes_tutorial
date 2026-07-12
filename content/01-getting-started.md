@@ -58,3 +58,18 @@ docs/ADR.md
 docs/UI_GUIDE.md
 current phase file
 ```
+
+## 5. `grill-me` Skill로 프로젝트 지식 채우기
+
+`build-opencode-harness`의 핵심 설치 절차에는 `grill-me`가 직접 포함되어 있지는 않습니다. 다만 교육에서는 보조 단계로 유용합니다.
+
+`grill-me` 방식은 문서를 질문으로 채우는 흐름입니다.
+
+- PRD의 목표와 제외 범위가 비어 있는가? 내용이 맞는가?
+- Architecture의 검증 명령이 실행 가능한가?
+- ADR에 결정 이유와 tradeoff가 있는가?
+- UI가 있다면 UI Guide가 필요한가?
+
+이 단계의 목표는 완벽한 문서를 쓰는 것이 아니라, agent가 추측하지 않아도 될 만큼의 기준을 만드는 것입니다.
+
+`make-phase`는 이미 있는 지식을 phase로 쪼개는 도구에 가깝고, `grill-me`는 그 전에 비어 있는 지식을 드러내는 보조 도구입니다. 따라서 둘은 경쟁 관계가 아니라 순서가 다릅니다.

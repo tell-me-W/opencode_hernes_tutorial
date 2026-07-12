@@ -38,3 +38,7 @@ Add or update tests for the requested behavior. Run the narrowest relevant test 
 # Verification
 
 Use the narrow test command from `docs/ARCHITECTURE.md`, or record the exact manual reason if no automated test can be run.
+
+# Commit
+
+Before marking this phase complete, commit only phase-owned changed files and record the short commit hash in `state.json`.

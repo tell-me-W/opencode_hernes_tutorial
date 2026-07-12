@@ -1,4 +1,0 @@
-interface:
-  display_name: "Make Phase"
-  short_description: "Create approved phase plans from project docs"
-  default_prompt: "Use $make-phase to turn this requirement into a verifiable phase directory."

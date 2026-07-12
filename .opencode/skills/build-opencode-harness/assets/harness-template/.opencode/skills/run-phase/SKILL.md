@@ -10,9 +10,19 @@ Operate an existing phase directory in an installed OpenCode harness project.
 ## Workflow
 
 1. Confirm the target is a bounded task directory under `phases/{task-name}/`.
-2. Read `AGENTS.md`, relevant docs under `docs/`, `index.json`, phase files, and `state.json`.
-3. Inspect current state with `python scripts/execute.py phases/{task-name} status`.
-4. If `approved_by_user` is false, do not run. Mark approval only after explicit user approval with `python scripts/execute.py phases/{task-name} approve`.
+2. Read `AGENTS.md`, relevant docs under `docs/`, `phases/{task-name}/index.json`, phase files, and `state.json`.
+3. Inspect current state:
+
+```bash
+python scripts/execute.py phases/{task-name} status
+```
+
+4. If `approved_by_user` is false, do not run. If the user has explicitly approved this phase design in the current conversation, mark approval:
+
+```bash
+python scripts/execute.py phases/{task-name} approve
+```
+
 5. Before executing, inspect `git status --short` and treat pre-existing changes as user-owned unless they are explicitly in the current phase scope.
 6. Continue the next incomplete step according to `index.json` and `state.json` through the runner:
 

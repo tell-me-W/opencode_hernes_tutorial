@@ -1,4 +1,4 @@
-# Layer 3: 실행 엔진 세팅
+# Layer 3-1: 실행 엔진 세팅
 
 ## 1. Layer 3의 역할
 
@@ -28,7 +28,6 @@ project/
 |       +-- run-phase/
 +-- scripts/
 |   +-- execute.py
-|   +-- test_execute.py
 |   +-- hooks/
 |   +-- success/
 +-- phases/
@@ -75,7 +74,6 @@ python scripts/execute.py phases/todo-items run --git-commits
 python scripts/execute.py --help
 python -m py_compile scripts/execute.py scripts/hooks/*.py
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1
-python -m pytest scripts/test_execute.py -q
 ```
 
-`pytest`가 없는 환경이면 마지막 명령은 생략할 수 있지만, 템플릿 자체는 `scripts/test_execute.py`로 runner 동작을 검증할 수 있어야 합니다.
+여기서는 사용자가 실제로 설치 후 확인할 명령만 다룹니다. Runner 자체의 회귀 테스트 파일은 템플릿 내부 품질 보증용이므로 튜토리얼 흐름에서는 설명하지 않습니다.

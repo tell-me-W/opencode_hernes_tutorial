@@ -63,7 +63,7 @@ function Get-MarkdownSectionHeadings {
 $part6Sections = Get-MarkdownSectionHeadings -Markdown $part6
 $localMarkdownLinksRoute = $contentIndex.Contains('(00-introduction.md)') -and $app.Contains('function renderMarkdownLink') -and $app.Contains('const localMarkdown =') -and $app.Contains('href="#') -and $app.Contains('chapterId')
 
-$part3CommandsMatch = $app.Contains('python -m py_compile scripts/execute.py scripts/hooks/*.py') -and $app.Contains('powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1') -and $app.Contains('python -m pytest scripts/test_execute.py -q')
+$part3CommandsMatch = $app.Contains('python -m py_compile scripts/execute.py scripts/hooks/*.py') -and $app.Contains('powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/check.ps1') -and -not $app.Contains('python -m pytest scripts/test_execute.py -q')
 
 $checks = @(
   @{ Name = 'Course title landmark'; Passed = $index.Contains('site-title') },

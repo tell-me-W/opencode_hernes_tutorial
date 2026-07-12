@@ -9,8 +9,8 @@ OpenCode를 단순 코드 생성 도구가 아니라, 문서와 phase를 기준�
 1. [소개](00-introduction.md)
 2. [Layer 1: docs/ - 프로젝트의 뇌](01-getting-started.md)
 3. [Layer 2: AGENTS.md - 프로젝트의 헌법](02-project-knowledge.md)
-4. [Layer 3: 실행 엔진 세팅](03-harness-setup.md)
-5. [Layer 3: make-phase/run-phase + execute.py](04-phase-workflow.md)
+4. [Layer 3-1: 실행 엔진 세팅](03-harness-setup.md)
+5. [Layer 3-2: make-phase/run-phase + execute.py](04-phase-workflow.md)
 6. [Layer 4: Hooks - 자동 검증 장치](05-safety-design.md)
 7. [PART 6: 실전 워크플로우](06-practical-workflow.md)
 
@@ -32,7 +32,6 @@ project/
 |       +-- run-phase/
 +-- scripts/
 |   +-- execute.py
-|   +-- test_execute.py
 |   +-- hooks/
 |   +-- success/
 +-- phases/

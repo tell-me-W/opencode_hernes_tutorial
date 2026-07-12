@@ -37,3 +37,7 @@ Update imports, adapters, call sites, or wiring to use the refactored boundary. 
 # Verification
 
 Run caller-level tests and characterization tests.
+
+# Commit
+
+Before marking this phase complete, commit only phase-owned changed files and record the short commit hash in `state.json`.
