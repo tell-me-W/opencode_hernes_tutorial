@@ -1111,6 +1111,7 @@ Build / Test      → Validation</code></pre>
           </tbody>
         </table>
       </div>
+      <p class="quote a" style="margin-top: 34px; font-size: 20px;">더 자세한 내용은 <a href="https://opencode.ai/docs" target="_blank" rel="noreferrer">OpenCode docs</a>에서 확인할 수 있습니다.</p>
     </section>
 
 
@@ -1147,52 +1148,6 @@ Build / Test      → Validation</code></pre>
         <div class="card"><strong>Reviewer Agent</strong><span>변경사항과 위험을 독립 검토</span></div>
       </div>
       <p class="lead a" style="margin-top: 30px;">책임이 분리될수록 실행 결과를 더 냉정하게 검증할 수 있다.</p>
-    </section>
-
-    <section class="slide wide" data-notes="Agent에게 능력을 주는 것만큼 중요한 것은 그 능력을 언제 사용할 수 있는지 제한하는 것입니다. Tool은 파일 읽기와 수정, Shell 실행, 검색처럼 실제 작업환경에 영향을 주는 수단입니다. Permission은 허용, 확인, 차단을 결정합니다. Hook은 실행 전후에 규칙과 검증을 자동으로 연결합니다. Harness에서는 능력과 제한을 한 세트로 설계해야 합니다.">
-      <div class="eyebrow a">Capability and guardrails</div>
-      <h2 class="a">Tool과 Permission은 함께 설계한다</h2>
-      <div class="content grid cols-3 a">
-        <div class="card">
-          <div class="number">T</div>
-          <strong>Tool</strong>
-          <span>파일 읽기·수정, Shell 실행, 검색처럼 실제 환경에 영향을 주는 작업 수단</span>
-        </div>
-        <div class="card">
-          <div class="number" style="background: var(--accent-3);">P</div>
-          <strong>Permission</strong>
-          <span>허용, 사용자 확인, 차단으로 Agent의 행동 범위를 제한하는 정책</span>
-        </div>
-        <div class="card">
-          <div class="number" style="background: var(--accent-2);">H</div>
-          <strong>Hook</strong>
-          <span>실행 전후에 검사, Build/Test, 변경 범위 검증을 자동으로 연결</span>
-        </div>
-      </div>
-      <p class="lead a" style="margin-top: 30px;">Agent에게 능력을 주는 것만큼, <span class="warn">언제 어떤 능력을 사용할 수 있는지</span> 제한하는 것도 중요하다.</p>
-    </section>
-
-    <section class="slide wide" data-notes="Skill과 Command는 비슷해 보이지만 다릅니다. Skill은 수행 방식에 대한 지식이고, Command는 반복 작업을 시작하는 호출 방식입니다.">
-      <div class="eyebrow a">Skill vs Command</div>
-      <h2 class="a">지식과 진입점을 분리한다</h2>
-      <div class="content compare a">
-        <div class="pane">
-          <h3 class="accent">Skill</h3>
-          <ul class="bullets small">
-            <li>특정 작업에 필요한 재사용 지침</li>
-            <li>프로젝트 절차와 업무 지식 문서화</li>
-            <li>필요한 시점에 Agent가 읽어 활용</li>
-          </ul>
-        </div>
-        <div class="pane">
-          <h3 class="ok">Command</h3>
-          <ul class="bullets small">
-            <li>반복 작업의 정해진 진입점</li>
-            <li>특정 Agent 또는 Skill과 연결</li>
-            <li>사용자 요청 형식을 표준화</li>
-          </ul>
-        </div>
-      </div>
     </section>
 
     <section class="slide wide" data-notes="Skill은 개인과 팀의 업무 방식을 재사용 가능한 형태로 제공하는 장치입니다. outline에서는 grill-me, make-phase, run-phase가 연결됩니다. grill-me는 모호한 요구사항에서 빠진 조건과 예외를 먼저 질문하게 하고, make-phase는 명확해진 요구사항을 작업 계약으로 만들며, run-phase는 승인된 Phase를 정해진 절차로 실행하게 합니다.">
@@ -1247,10 +1202,6 @@ Build / Test      → Validation</code></pre>
       </div>
     </section>
 
-    <section class="slide center" data-notes="Chapter 2의 연결 문장입니다. 이제 이 구성요소들을 실제 프로젝트에서 Phase 기반 Harness로 어떻게 연결했는지 살펴봅니다.">
-      <p class="quote a">이제 구성요소들을<br><span class="accent">Phase 기반 Harness</span>로<br>어떻게 연결하는지 살펴본다.</p>
-    </section>
-
     <section class="slide section" data-notes="Chapter 3이 발표의 중심입니다. 핵심 질문은 Phase 문서를 기반으로 Agent 작업을 어떻게 제한하고, 순서대로 실행하며, 독립적으로 검증하느냐입니다.">
       <div class="section-num a">03</div>
       <h2 class="a">Phase 기반<br>OpenCode Harness</h2>
@@ -1258,13 +1209,13 @@ Build / Test      → Validation</code></pre>
       <div class="footer-note">Chapter 3 · 26 min</div>
     </section>
 
-    <section class="slide wide" data-notes="자유로운 Agent 실행은 편하지만 위험합니다. 범위를 Agent가 해석하고, 완료 기준도 Agent가 판단하면 사용자는 마지막에야 결과를 확인하게 됩니다.">
+    <section class="slide wide" data-notes="자유로운 AI실행은 편하지만 위험합니다. 범위를 AI가 해석하고, 완료 기준도 AI가 판단하면 사용자는 마지막에야 결과를 확인하게 됩니다.">
       <div class="eyebrow a">Problem</div>
-      <h2 class="a">자유로운 Agent 실행의 문제</h2>
+      <h2 class="a">자유로운 AI실행의 문제</h2>
       <div class="content a">
         <pre><code>“기능을 구현해줘”
         ↓
-Agent가 범위 해석
+AI가 범위 해석
         ↓
 여러 파일 수정
         ↓
