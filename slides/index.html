@@ -540,6 +540,11 @@ powershell -NoProfile -ExecutionPolicy Bypass \
   -File scripts/hooks/check.ps1</code></pre>
         </div>
       </div>
+      <a class="reference-link harness-repo-link a" href="https://github.com/tell-me-W/opencode_hernes_tutorial/tree/main/.opencode/skills/build-opencode-harness" target="_blank" rel="noreferrer">
+        <strong>build-opencode-harness Repository</strong>
+        <span>OpenCode 프로젝트에 Phase, Runner, Hook, Skill 구조를 설치하는 Harness 생성 Skill</span>
+        <em>github.com/tell-me-W/opencode_hernes_tutorial/.../build-opencode-harness</em>
+      </a>
     </section>
 
 
@@ -698,31 +703,33 @@ Reviewer Agent
 
 
     <!-- Slide 32: Chapter 3 - Execution flow -->
-    <section class="slide wide" data-notes="전체 실행 흐름입니다. 요구사항에서 Phase를 만들고, 사람이 검토 승인한 뒤, execute.py가 다음 Step을 선택하고 Hook과 검증을 거쳐 상태를 기록합니다.">
+    <section class="slide wide" data-notes="전체 실행 흐름입니다. 요구사항에서 Phase를 만들고, 사람이 검토 승인한 뒤, execute.py가 state.json을 읽어 승인과 blocked 상태를 확인합니다. 이후 index.json에서 다음 미완료 Step을 고르고, pre와 validate hook을 통과한 뒤 step type에 따라 agent, command, verify 중 하나를 실행합니다. 성공 hook과 post hook 이후 완료, 실패, blocked 상태가 state.json에 기록되고 남은 Step이 있으면 같은 루프를 반복합니다.">
       <div class="eyebrow a">Execution loop</div>
       <h2 class="a">전체 실행 흐름</h2>
       <div class="content a">
-        <pre><code>요구사항 입력
-        ↓
+               <pre><code>
+요구사항 입력
+      ↓
 make-phase
-        ↓
+      ↓
 Phase 문서 생성
-        ↓
+      ↓
 사용자 검토·승인
-        ↓
+      ↓
 execute.py
-        ↓
+      ↓
 다음 미완료 Step 선택
-        ↓
+      ↓
 Pre Hook
-        ↓
+      ↓
 Agent / Command / Verify
-        ↓
+      ↓
 Post Hook
-        ↓
+      ↓
 state.json 기록
-        ↓
-다음 Step 또는 중단</code></pre>
+      ↓
+다음 Step 또는 중단
+</code></pre>
       </div>
     </section>
 
@@ -769,12 +776,68 @@ state.json 기록
     </section>
 
 
-    <!-- Slide 35: Closing - Takeaway -->
+    <!-- Slide 35: Internal OpenCode tips -->
+    <section class="slide wide" data-notes="사내에서 OpenCode를 쓸 때는 큰 구조보다 매일 반복되는 마찰을 줄이는 것이 먼저입니다. 터미널에서 자주 들어가는 프로젝트 위치는 alias로 고정하고, Windows 환경에서 glob이나 grep 계열 오류가 반복되면 ripgrep 설치 여부를 먼저 확인합니다. 예시 이미지와 troubleshooting 문서는 공유 링크로 가볍게 붙이면 됩니다.">
+      <div class="eyebrow a">Internal tips</div>
+      <h2 class="a">사내에서 OpenCode를 쓸 때 편해지는 것들</h2>
+      <div class="content compare internal-tips a">
+        <div class="pane">
+          <h3>Terminal alias</h3>
+          <p class="tip-copy">PowerShell에서 TUI를 자주 불러온다면, 프로젝트 진입점을 짧은 명령으로 고정한다.</p>
+          <div class="alias-list">
+            <code>gofdc</code>
+            <code>gogit</code>
+            <code>golog</code>
+          </div>
+          <div class="screenshot-slot">alias 예시 이미지</div>
+        </div>
+        <div class="pane">
+          <h3>Troubleshooting</h3>
+          <p class="tip-copy"><code>glob</code>, <code>grep</code> 오류가 반복되면 먼저 <span class="ok">ripgrep</span> 설치 여부를 확인한다.</p>
+          <ul class="bullets small">
+            <li>사내 Windows / 터미널 환경에서 탐색 도구 문제가 날 수 있다.</li>
+            <li><code>rg</code>를 수동 설치한 뒤 오류가 해결됐다.</li>
+            <li>설치 과정은 md 문서 링크로 공유한다.</li>
+          </ul>
+          <a class="link-item" href="#" aria-disabled="true">
+            <strong>ripgrep troubleshooting 문서</strong>
+            <span>md 링크 추가 예정</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Slide 36: Closing - Takeaway -->
     <section class="slide center" data-notes="마지막 메시지입니다. Harness는 AI를 느리게 만드는 장치가 아니라, 조직과 프로젝트가 AI의 속도를 안전하게 받아내기 위한 실행 구조입니다.">
       <p class="quote a">Harness는 AI를 묶는 장치가 아니라,<br><span class="accent">AI의 속도를 검증 가능한 결과로 바꾸는 실행 구조</span>다.</p>
       <p class="subtitle a">Context · Constraints · Workflow · Validation</p>
     </section>
   </div>
+  <script src="./vendor/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        curve: 'basis',
+        htmlLabels: true,
+        nodeSpacing: 30,
+        rankSpacing: 34
+      },
+      themeVariables: {
+        background: '#0a0a0a',
+        primaryColor: '#151515',
+        primaryTextColor: '#f0f0f0',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#64748b',
+        secondaryColor: '#1f1f1f',
+        tertiaryColor: '#111111',
+        fontFamily: 'Pretendard, Noto Sans KR, Malgun Gothic, system-ui, sans-serif'
+      }
+    });
+  </script>
   <script src="./app.js"></script>
 </body>
 </html>

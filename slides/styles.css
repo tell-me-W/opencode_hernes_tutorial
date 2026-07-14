@@ -923,6 +923,23 @@
       line-height: 1.45;
     }
 
+    .reference-link em {
+      display: block;
+      margin-top: 18px;
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 14px;
+      font-style: normal;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .harness-repo-link {
+      min-height: 0;
+      margin-top: 22px;
+      padding: 20px 22px;
+    }
+
     .link-list {
       display: grid;
       gap: 12px;
@@ -959,6 +976,51 @@
       font-size: 12px;
       line-height: 1.35;
       overflow-wrap: anywhere;
+    }
+
+    .internal-tips .pane {
+      min-height: 430px;
+    }
+
+    .tip-copy {
+      margin: 0 0 20px;
+      color: var(--muted-2);
+      font-size: 22px;
+      line-height: 1.5;
+    }
+
+    .alias-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .alias-list code {
+      display: inline-grid;
+      min-width: 94px;
+      min-height: 46px;
+      place-items: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.13);
+      color: #bfdbfe;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .screenshot-slot {
+      display: grid;
+      min-height: 150px;
+      place-items: center;
+      border: 1px dashed rgba(184, 184, 184, 0.38);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.025);
+      color: var(--muted);
+      font-size: 20px;
+      font-weight: 700;
     }
 
     .source-grid {
@@ -1142,8 +1204,8 @@
 
     .timeline-row {
       display: grid;
-      grid-template-columns: 190px minmax(0, 1fr);
-      gap: 22px;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 16px;
       align-items: start;
     }
 
