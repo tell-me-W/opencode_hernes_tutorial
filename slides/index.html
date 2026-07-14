@@ -169,6 +169,57 @@
       text-align: center;
     }
 
+    .slide.title-slide {
+      overflow: hidden;
+    }
+
+    .title-copy {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      justify-items: center;
+      text-shadow: 0 8px 34px rgba(0, 0, 0, 0.72);
+    }
+
+    .magnet-lines {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      width: 100%;
+      height: 100%;
+      padding: 8vh 9vw;
+      justify-items: center;
+      align-items: center;
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .magnet-lines::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 35% 45%, rgba(59, 130, 246, 0.16), transparent 42%),
+        radial-gradient(circle at 70% 55%, rgba(34, 197, 94, 0.1), transparent 38%);
+      filter: blur(16px);
+    }
+
+    .magnet-lines span {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 2px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(239, 239, 239, 0.92);
+      transform: rotate(var(--rotate, -10deg));
+      transform-origin: center;
+      will-change: transform;
+      transition: opacity 0.2s ease;
+    }
+
     .slide.balanced {
       align-items: center;
     }
@@ -1244,10 +1295,13 @@
     <div class="hint">Space / Arrow keys navigate · F fullscreen · S speaker notes</div>
     <div id="counter" class="counter"></div>
 
-    <section class="slide active center" data-notes="오늘 발표의 큰 질문은 단순합니다. AI Agent를 더 많이 쓰는 시대에, 결과를 어떻게 믿을 수 있게 만들 것인가입니다. 이 덱은 Chapter 1부터 3까지의 내용을 하나의 발표 흐름으로 묶었습니다.">
-      <div class="eyebrow a">OpenCode Harness Meetup</div>
-      <h1 class="a">OpenCode로 해보는<br>Harness 튜토리얼</h1>
-      <p class="subtitle a">로컬 세팅부터 Harness 까지, AI가 사고 안치는 구조 만들기</p>
+    <section class="slide active center title-slide" data-notes="오늘 발표의 큰 질문은 단순합니다. AI Agent를 더 많이 쓰는 시대에, 결과를 어떻게 믿을 수 있게 만들 것인가입니다. 이 덱은 Chapter 1부터 3까지의 내용을 하나의 발표 흐름으로 묶었습니다.">
+      <div class="magnet-lines" data-rows="14" data-columns="26" data-base-angle="-5" aria-hidden="true"></div>
+      <div class="title-copy">
+        <div class="eyebrow a">OpenCode Harness Meetup</div>
+        <h1 class="a">OpenCode로 해보는<br>Harness 튜토리얼</h1>
+        <p class="subtitle a">로컬 세팅부터 Harness 까지, AI가 사고 안치는 구조 만들기</p>
+      </div>
     </section>
 
     <section class="slide wide" data-notes="먼저 전체 지도를 잡고 시작합니다. 첫 장은 왜 Harness가 필요한지, 두 번째는 OpenCode를 구성하는 기본 부품, 세 번째는 그 부품을 Phase 방식으로 연결하는 방법입니다.">
@@ -1675,7 +1729,7 @@ AI가 범위 해석
 │  ├─ PRD.md              : 뭘 만드는지
 │  ├─ ARCHITECTURE.md     : 어떻게 만드는지
 │  ├─ ADR.md              : 왜 만드는지
-│  └─ UI_GUIDE.md         :
+│  └─ UI_GUIDE.md         
 ├─ .opencode/skills/
 │  ├─ make-phase/
 │  └─ run-phase/
@@ -2015,6 +2069,43 @@ state.json 기록
       } catch(e) {}
     }
 
+    function initMagnetLines() {
+      const containers = [...document.querySelectorAll('.magnet-lines')];
+      containers.forEach((container) => {
+        const rows = Number(container.dataset.rows || 10);
+        const columns = Number(container.dataset.columns || 12);
+        const baseAngle = Number(container.dataset.baseAngle || -10);
+        container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+        container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        container.replaceChildren(...Array.from({ length: rows * columns }, () => {
+          const line = document.createElement('span');
+          line.style.setProperty('--rotate', `${baseAngle}deg`);
+          return line;
+        }));
+
+        const items = [...container.querySelectorAll('span')];
+        const rotateToPointer = (pointer) => {
+          items.forEach((item) => {
+            const rect = item.getBoundingClientRect();
+            const centerX = rect.x + rect.width / 2;
+            const centerY = rect.y + rect.height / 2;
+            const b = pointer.x - centerX;
+            const a = pointer.y - centerY;
+            const c = Math.sqrt(a * a + b * b) || 1;
+            const angle = ((Math.acos(b / c) * 180) / Math.PI) * (pointer.y > centerY ? 1 : -1);
+            item.style.setProperty('--rotate', `${angle}deg`);
+          });
+        };
+
+        window.addEventListener('pointermove', rotateToPointer);
+        requestAnimationFrame(() => {
+          const rect = container.getBoundingClientRect();
+          rotateToPointer({ x: rect.left + rect.width * 0.58, y: rect.top + rect.height * 0.42 });
+        });
+      });
+    }
+
+    initMagnetLines();
     updateProgress();
     updateCounter();
   </script>
