@@ -1320,7 +1320,7 @@ Build / Test      → Validation</code></pre>
       <div class="section-num a">03</div>
       <h2 class="a">Phase 기반<br>OpenCode Harness</h2>
       <p class="lead a">Agent 작업을 제한하고, 순서대로 실행하며, 독립적으로 검증하는 구조</p>
-      <div class="footer-note">Chapter 3 · 26 min</div>
+      <div class="footer-note">Chapter 3 · 31 min</div>
     </section>
 
     <section class="slide wide" data-notes="자유로운 AI실행은 편하지만 위험합니다. 범위를 AI가 해석하고, 완료 기준도 AI가 판단하면 사용자는 마지막에야 결과를 확인하게 됩니다.">
@@ -1396,7 +1396,7 @@ AI가 범위 해석
       </div>
     </section>
 
-    <section class="slide wide" data-notes="프로젝트 Harness는 문서, Skill, Phase, Runner, Hook이 함께 있는 구조입니다. 이 구조가 Agent에게 필요한 판단 기준과 실행 경계를 제공합니다.">
+    <section class="slide wide" data-notes="프로젝트 Harness는 문서, Skill, Phase, Runner, Hook이 함께 있는 구조입니다. build-opencode-harness는 기존 프로젝트를 보존하면서 필요한 파일을 추가하거나 병합합니다. 단수 skill 폴더나 특정 도구 전용 command 폴더가 아니라, OpenCode가 읽는 .opencode/skills와 실행 스크립트, phase 템플릿을 프로젝트 안에 둡니다.">
       <div class="eyebrow a">Project structure</div>
       <h2 class="a">프로젝트 Harness 구조</h2>
       <div class="content a">
@@ -1408,25 +1408,50 @@ AI가 범위 해석
 │  ├─ ADR.md              : 왜 만드는지
 │  └─ UI_GUIDE.md         :
 ├─ .opencode/skills/
-│  ├─ grill-me/
 │  ├─ make-phase/
 │  └─ run-phase/
 ├─ phases/
 │  └─ _template/
+│     ├─ index.json
+│     └─ state.json
 └─ scripts/
    ├─ execute.py
-   └─ hooks/</code></pre>
+   ├─ hooks/
+   └─ success/</code></pre>
       </div>
     </section>
 
-    <section class="slide wide" data-notes="docs 폴더는 보기 좋은 문서 보관함이 아니라 Agent가 작업 전에 읽고 판단 기준으로 삼는 프로젝트의 뇌입니다. 특히 레거시 시스템 운영에서는 현재 코드만 보고 의도를 추측하면 위험합니다. PRD는 무엇을 지키고 어디까지 바꿀지, ARCHITECTURE는 어떤 구조와 모듈 경계를 건드려도 되는지, ADR은 왜 과거에 그런 결정을 했는지, UI_GUIDE는 운영자가 익숙한 화면과 상호작용 기준을 알려줍니다.">
+    <section class="slide wide" data-notes="설치가 끝났다는 것은 파일이 생겼다는 뜻만은 아닙니다. 실제로 runner가 도움말을 출력하는지, Python 파일이 컴파일되는지, hook이 현재 환경에서 실행되는지를 확인해야 합니다. 여기서 중요한 것은 튜토리얼의 사용자가 따라 할 수 있는 최소 검증 명령만 보여주는 것입니다.">
+      <div class="eyebrow a">Install check</div>
+      <h2 class="a">설치 후에는 실행 가능한지 확인한다</h2>
+      <div class="content compare a">
+        <div class="pane">
+          <h3>파일 확인</h3>
+          <ul class="bullets small">
+            <li><code>AGENTS.md</code>와 <code>docs/</code>가 있는가</li>
+            <li><code>.opencode/skills/</code>에 skill이 있는가</li>
+            <li><code>scripts/execute.py</code>와 hook이 있는가</li>
+            <li><code>phases/_template/</code>이 있는가</li>
+          </ul>
+        </div>
+        <div class="pane">
+          <h3>동작 확인</h3>
+          <pre><code>python scripts/execute.py --help
+python -m py_compile scripts/execute.py scripts/hooks/*.py
+powershell -NoProfile -ExecutionPolicy Bypass \
+  -File scripts/hooks/check.ps1</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide wide" data-notes="docs 폴더는 보기 좋은 문서 보관함이 아니라 Agent가 작업 전에 읽고 판단 기준으로 삼는 프로젝트의 뇌입니다. 특히 레거시 시스템 운영에서는 현재 코드만 보고 의도를 추측하면 위험합니다. PRD는 무엇을 지키고 어디까지 바꿀지, ARCHITECTURE는 어떤 구조와 모듈 경계를 건드려도 되는지, ADR은 왜 과거에 그런 결정을 했는지, UI_GUIDE는 운영자가 익숙한 화면과 상호작용 기준을 알려줍니다. UI가 없는 프로젝트라면 UI_GUIDE는 생략하거나 not applicable로 둘 수 있습니다.">
       <div class="eyebrow a">Layer 1: docs/</div>
       <h2 class="a">docs/는 프로젝트의 뇌</h2>
-      <p class="lead a">md 파일 3개로 프로젝트 전체를 알려주기 </p>
-      <div class="content grid cols-3 a">
+      <p class="lead a">Agent가 추측하지 않아도 될 만큼의 판단 기준을 남긴다.</p>
+      <div class="content grid cols-4 a">
         <div class="card compact">
           <strong>PRD.md</strong>
-          <span>무엇을 운영하고, 어떤 사용자·업무 흐름을 지켜야 하는지 정의한다.</span>
+          <span>목표, 사용자, MVP 범위, 이번에 만들지 않을 것을 정의한다.</span>
         </div>
         <div class="card compact">
           <strong>ARCHITECTURE.md</strong>
@@ -1435,6 +1460,10 @@ AI가 범위 해석
         <div class="card compact">
           <strong>ADR.md</strong>
           <span>과거 의사결정의 이유, 대안, tradeoff를 남겨 함부로 되돌리지 않게 한다.</span>
+        </div>
+        <div class="card compact">
+          <strong>UI_GUIDE.md</strong>
+          <span>화면, 컴포넌트, 상호작용 기준을 정리한다. UI가 없으면 생략한다.</span>
         </div>
       </div>
     </section>
@@ -1465,15 +1494,15 @@ ant test</code></pre>
       </div>
     </section>
 
-    <section class="slide wide" data-notes="Phase 생성 과정은 요구사항을 바로 실행하는 것이 아닙니다. 프로젝트 문서를 확인하고, 범위를 나누고, 완료 기준과 검증 명령을 정의한 뒤 사용자 검토를 거칩니다.">
+    <section class="slide wide" data-notes="Phase 생성 과정은 요구사항을 바로 실행하는 것이 아닙니다. 프로젝트 문서를 확인하고, 범위를 나누고, 완료 기준과 검증 명령을 정의한 뒤 사용자 검토를 거칩니다. 요구사항이 흐릿하면 바로 구현하지 않고, 사용자, 성공 기준, 제외 범위, 자동 검증과 수동 검증, 보안과 데이터 손실 위험을 먼저 질문으로 채웁니다.">
       <div class="eyebrow a">make-phase workflow</div>
       <h2 class="a">Phase 생성 과정</h2>
       <div class="content timeline a">
         <div class="timeline-row"><strong>1</strong><span>사용자 요구사항을 받는다.</span></div>
-        <div class="timeline-row"><strong>2</strong><span>make-phase Skill이 프로젝트 문서를 확인한다.</span></div>
-        <div class="timeline-row"><strong>3</strong><span>작업 범위를 작은 Phase로 분리한다.</span></div>
-        <div class="timeline-row"><strong>4</strong><span>Done Criteria와 Verification을 정의한다.</span></div>
-        <div class="timeline-row"><strong>5</strong><span>실행 전에 사용자가 검토한다.</span></div>
+        <div class="timeline-row"><strong>2</strong><span>PRD, Architecture, ADR에서 판단 기준을 확인한다.</span></div>
+        <div class="timeline-row"><strong>3</strong><span>빠진 조건은 질문으로 채우고, 만들지 않을 범위를 분리한다.</span></div>
+        <div class="timeline-row"><strong>4</strong><span>작업을 작은 Phase와 Step으로 나누고 Done Criteria를 쓴다.</span></div>
+        <div class="timeline-row"><strong>5</strong><span>Verification을 정의한 뒤 실행 전에 사용자가 검토한다.</span></div>
       </div>
     </section>
 
@@ -1611,6 +1640,36 @@ state.json 기록
           </ul>
         </div>
       </div>
+    </section>
+
+    <section class="slide wide" data-notes="OpenCode permission과 Harness hook은 서로 경쟁하는 장치가 아닙니다. OpenCode permission은 도구 호출을 승인하거나 거부하는 실행 정책이고, Harness hook은 phase 파일과 프로젝트 상태가 팀 규칙에 맞는지 검사하는 프로젝트 정책입니다. 둘을 나누어 설명해야 사용자가 어느 레이어에서 무엇을 막는지 이해합니다.">
+      <div class="eyebrow a">Permission vs Hook</div>
+      <h2 class="a">권한 정책과 프로젝트 검증은 레이어가 다르다</h2>
+      <div class="content a">
+        <table>
+          <thead>
+            <tr><th>구분</th><th>OpenCode permission</th><th>Harness hook</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>위치</td><td>OpenCode 실행 정책</td><td>프로젝트 Harness 정책</td></tr>
+            <tr><td>목적</td><td>도구 호출 승인과 차단</td><td>phase 안전성과 완료 조건 검증</td></tr>
+            <tr><td>예시</td><td><code>rm *</code>, <code>git reset --hard</code> ask/deny</td><td>validate_phase, tdd_guard, dangerous_cmd_guard</td></tr>
+            <tr><td>실패 시</td><td>사용자 승인 요청 또는 실행 거부</td><td>Step 중단, 실패 기록, 완료 처리 금지</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide wide" data-notes="실패가 나면 같은 명령을 계속 반복하지 않습니다. 어떤 Step에서 실패했는지, hook 실패인지 OpenCode 실행 실패인지 검증 명령 실패인지 구분합니다. Credential, destructive approval, 문서 충돌, CRITICAL 규칙 충돌은 Agent가 임의로 우회하지 않고 사용자에게 돌아와야 합니다.">
+      <div class="eyebrow a">Failure handling</div>
+      <h2 class="a">실패하면 반복보다 상태를 먼저 본다</h2>
+      <div class="content timeline a">
+        <div class="timeline-row"><strong>1</strong><span><code>state.json</code>에서 실패 Step과 blocked 상태를 확인한다.</span></div>
+        <div class="timeline-row"><strong>2</strong><span>Hook 실패, OpenCode 실행 실패, 검증 명령 실패를 구분한다.</span></div>
+        <div class="timeline-row"><strong>3</strong><span>Done Criteria가 현실적인지, 문서와 phase가 충돌하는지 확인한다.</span></div>
+        <div class="timeline-row"><strong>4</strong><span>필요하면 phase를 수정하고 다시 승인받은 뒤 재개한다.</span></div>
+      </div>
+      <p class="lead a" style="margin-top: 30px;">Harness의 목적은 실패를 숨기는 것이 아니라 <span class="ok">다음 판단 가능한 상태</span>로 남기는 것이다.</p>
     </section>
 
     <section class="slide wide" data-notes="Chapter 1에서 본 오픈소스 문제는 Phase Harness의 각 대응과 연결됩니다. 범위 제한, 검증 필수화, 상태 기록, 재시도 제한 같은 장치가 필요합니다.">
