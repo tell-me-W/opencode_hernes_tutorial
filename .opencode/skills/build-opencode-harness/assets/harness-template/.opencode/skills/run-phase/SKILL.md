@@ -1,11 +1,13 @@
 ---
 name: run-phase
-description: Use inside an OpenCode harness project to inspect, approve after explicit user approval, execute, or continue an existing phases/{task-name}/ directory using scripts/execute.py, state.json, hooks, command steps, verify steps, and opencode-run agent orchestration. This skill must not design new phase scope.
+description: Use inside an OpenCode harness project to inspect, approve after explicit user approval, execute externally, and record state for an existing phases/{task-name}/ directory. scripts/execute.py is a state manager only; it must not run agents, hooks, shell commands, verification commands, git commands, or change phase scope.
 ---
 
 # Run Phase
 
 Operate an existing phase directory in an installed OpenCode harness project.
+
+`scripts/execute.py` is intentionally state-only. It records approval, current step, completion, failures, blocks, external output files, and commit hashes. It does not execute implementation work.
 
 ## Workflow
 
@@ -17,42 +19,80 @@ Operate an existing phase directory in an installed OpenCode harness project.
 python scripts/execute.py phases/{task-name} status
 ```
 
-4. If `approved_by_user` is false, do not run. If the user has explicitly approved this phase design in the current conversation, mark approval:
+4. If `approved_by_user` is false, do not execute. If the user explicitly approved this phase design in the current conversation, record approval:
 
 ```bash
 python scripts/execute.py phases/{task-name} approve
 ```
 
-5. Before executing, inspect `git status --short` and treat pre-existing changes as user-owned unless they are explicitly in the current phase scope.
-6. Continue the next incomplete step according to `index.json` and `state.json` through the runner:
+5. Ask the state manager for the next incomplete step:
 
 ```bash
-python scripts/execute.py phases/{task-name} run --max-retries 3
+python scripts/execute.py phases/{task-name} next
 ```
 
-Use `--git-commits` when approved agent steps have `"commit_after": true`.
-7. Stop for hook blocks, impossible done criteria, conflicting docs, `CRITICAL` rule conflicts, credentials, destructive approval, or unrelated dirty worktree changes.
-8. Report changed files, commits, completed steps, verification results, blocked state, and remaining risks.
+`run` is a compatibility alias for `next`; it does not run anything.
+
+6. When beginning a step, record that the step is in progress:
+
+```bash
+python scripts/execute.py phases/{task-name} start --step <step-id>
+```
+
+7. Execute the step outside `execute.py`:
+
+- `agent`: use OpenCode/Codex or another approved agent workflow against the phase file.
+- `command`: run the deterministic command block yourself after checking safety.
+- `verify`: run the verification command block yourself, or perform the exact manual verification described by the phase.
+
+8. Record the result:
+
+```bash
+python scripts/execute.py phases/{task-name} complete --step <step-id>
+python scripts/execute.py phases/{task-name} fail --step <step-id> --reason "<reason>"
+python scripts/execute.py phases/{task-name} block --step <step-id> --reason "<reason>"
+```
+
+For development-related steps with `"commit_after": true`, create the commit outside `execute.py`, then record the evidence:
+
+```bash
+python scripts/execute.py phases/{task-name} complete --step <step-id> --commit <hash>
+```
+
+If the step legitimately changed nothing:
+
+```bash
+python scripts/execute.py phases/{task-name} complete --step <step-id> --no-changes
+```
+
+9. Repeat `next`, external execution, and state recording until no steps remain.
+10. Report changed files, commits, completed steps, verification results, blocked state, and remaining risks.
+
+## State Manager Commands
+
+- `status`: print `index.json`, next step, and `state.json`.
+- `approve`: set `approved_by_user=true`; use only after explicit user approval.
+- `next`: print the next incomplete step without changing state.
+- `run`: compatibility alias for `next`; it does not execute.
+- `start`: mark a step as `running` and set `current_phase`.
+- `complete`: mark a step as completed after external execution.
+- `fail`: record an external failure and set `blocked` for review.
+- `block`: record a hard blocker and set `blocked`.
+
+Useful metadata:
+
+```bash
+python scripts/execute.py phases/{task-name} fail --step <step-id> --exit-code 1 --output-file path/to/log.txt
+python scripts/execute.py phases/{task-name} complete --step <step-id> --output-file path/to/result.jsonl --note "manual verification passed"
+```
 
 ## Step Handling
 
-- `agent`: let `scripts/execute.py run` orchestrate the approved step with `opencode run <prompt> --format json --dir <project-root>`. The runner writes `agent-output/{step-id}.jsonl`, records attempts, exit code, commit, and failures in `state.json`, and blocks before OpenCode when `commit_after` is true but `--git-commits` was not provided.
-- `command`: run through the runner so hooks, retries, command extraction, and failures are recorded.
-- `verify`: run through the runner so verification output and failures are recorded.
+- `agent`: read the phase file, run the agent externally, inspect output, then record `complete`, `fail`, or `block`.
+- `command`: run command blocks externally. Do not use `execute.py` for shell execution.
+- `verify`: run verification externally. Do not mark complete until verification evidence exists.
 
-Default run:
-
-```bash
-python scripts/execute.py phases/{task-name} run --max-retries 3
-```
-
-Run with automatic commits for `commit_after` steps:
-
-```bash
-python scripts/execute.py phases/{task-name} run --max-retries 3 --git-commits
-```
-
-Use `--agent-runner none` only when you intentionally want to stop for manual/external agent execution. Use `--branch-prefix` only when the user wants per-task branches. Do not pass `--dangerously-skip-permissions` unless the user explicitly approved that OpenCode permission bypass.
+`execute.py` validates step type, dependency completion, approval state, and `commit_after` evidence. It does not validate business correctness.
 
 ## Commit Policy
 
@@ -63,7 +103,7 @@ A step is development-related when either:
 - `index.json` has `"commit_after": true` for the step.
 - The step changes production code, tests, app configuration, build files, scripts, migrations, or project docs as part of development work.
 
-When not using runner-managed commits, use this sequence:
+Use this sequence outside `execute.py`:
 
 ```bash
 git status --short
@@ -73,15 +113,20 @@ git commit -m "<type>: <short task/step summary>"
 git rev-parse --short HEAD
 ```
 
-Use Conventional Commit types from `AGENTS.md`. Prefer `test:` for test-only TDD steps, `feat:` or `fix:` for behavior implementation, `refactor:` for behavior-preserving structure changes, and `docs:` for docs-only development updates.
+Then record the commit:
 
-Never stage unrelated paths. Compare the current `git status --short` to the baseline captured before the run. If changed paths include files outside the current phase scope, stop and report them instead of committing. If there are no file changes, the runner records why no commit was created.
+```bash
+python scripts/execute.py phases/{task-name} complete --step <step-id> --commit <hash>
+```
+
+Never stage unrelated paths. Compare the current `git status --short` to the baseline captured before the step. If changed paths include files outside the current phase scope, stop and record a block instead of committing.
 
 ## Rules
 
 - Do not change phase scope during execution. Use `make-phase` to revise scope.
 - Do not approve a phase unless the user explicitly approved it.
-- Do not bypass hook failures or manually mark command/verify steps complete.
+- Do not use `execute.py` to run agents, hooks, command blocks, verification blocks, git commands, or permission bypasses.
+- Do not manually mark a step complete before external work and verification are actually done.
 - Do not mark a development-related step complete before its commit is created or explicitly reported as unnecessary because there were no changes.
 - Do not stage every changed path indiscriminately when unrelated user changes are present.
 - Do not run destructive commands without explicit approval.

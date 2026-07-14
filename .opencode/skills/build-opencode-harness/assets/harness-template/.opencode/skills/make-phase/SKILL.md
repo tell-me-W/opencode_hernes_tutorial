@@ -55,9 +55,9 @@ If the request is ambiguous, choose `tdd` when behavior changes are possible. Ch
 
 Copy the selected template into `phases/{task-name}/`, then replace placeholders and adjust step names only as needed. Preserve the selected template's test-first or characterization-first ordering.
 
-Use `command` only for deterministic shell command blocks that the runner may execute directly. Use `verify` for verification command blocks. Use `agent` for work that OpenCode should perform through `opencode run` after approval.
+Use `command` only for deterministic shell command blocks that a human, Codex, OpenCode, or another approved external runner can execute after approval. Use `verify` for verification command blocks or exact manual verification checks. Use `agent` for work that should be performed by an external agent workflow after approval. `scripts/execute.py` records state only; it must not run agents, hooks, shell commands, verification commands, or git.
 
-Set `"commit_after": true` on every development-related step that can change code, tests, configuration, scripts, migrations, or project docs. Leave it false or omit it for planning, bootstrap, and pure verification steps.
+Set `"commit_after": true` on every development-related step that can change code, tests, configuration, scripts, migrations, or project docs. Leave it false or omit it for planning, bootstrap, and pure verification steps. In state-only mode this means `/run-phase` must create or inspect the commit outside `execute.py`, then record it with `python scripts/execute.py phases/{task-name} complete --step <step-id> --commit <hash>` or explicitly record `--no-changes`.
 
 ## Template Editing
 
@@ -68,6 +68,7 @@ After copying a template:
 - Replace generic inputs with the real docs, source areas, commands, and constraints.
 - Keep `commit_after` on development-related steps.
 - Keep planning/bootstrap/verify steps free of `commit_after` unless they are expected to change files.
+- Keep `state.json` mode as `state-only`.
 - Remove any phase file that is clearly unnecessary only when its responsibility is covered by another phase.
 
 ## Output Summary
@@ -80,6 +81,7 @@ When the phase design is ready, report:
 - Out-of-scope boundaries.
 - Verification commands or manual checks.
 - Any docs gaps or assumptions.
+- Explicit note that `scripts/execute.py` will only record state; execution and verification happen outside it.
 - Explicit note that nothing has been executed or approved yet.
 
 ## Initial State
@@ -89,7 +91,7 @@ Create `state.json` with:
 ```json
 {
   "task": "{task-name}",
-  "mode": "opencode-orchestrated",
+  "mode": "state-only",
   "approved_by_user": false,
   "current_phase": null,
   "completed": [],

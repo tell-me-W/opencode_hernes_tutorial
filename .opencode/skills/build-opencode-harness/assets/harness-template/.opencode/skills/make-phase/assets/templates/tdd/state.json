@@ -1,6 +1,6 @@
 {
   "task": "{task-name}",
-  "mode": "opencode-orchestrated",
+  "mode": "state-only",
   "approved_by_user": false,
   "current_phase": null,
   "completed": [],
