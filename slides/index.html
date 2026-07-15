@@ -469,6 +469,32 @@ AI가 범위 해석
     </section>
 
 
+    <!-- Slide 22: Chapter 3 - Harness changes with model and environment -->
+    <section class="slide wide" data-notes="여기서는 Harness가 한 번 만들고 끝나는 고정 템플릿이 아니라는 점을 강조합니다. 모델의 성능과 약점, 로컬 환경과 권한, 팀이 감당할 수 있는 검증 비용이 바뀌면 Harness도 같이 바뀌어야 합니다. 그래서 좋은 Harness는 정답 문서가 아니라 계속 업데이트되는 운영 계약에 가깝습니다.">
+      <div class="eyebrow a">Living harness</div>
+      <h2 class="a">Harness는 한 번 만들고<br>끝나는 구조가 아니다</h2>
+      <p class="lead a">모델의 능력, 실행 환경, 팀의 위험 기준이 바뀌면 Harness도 함께 조정되어야 한다.</p>
+      <div class="content grid cols-3 a">
+        <div class="card compact">
+          <div class="number">M</div>
+          <strong>Model</strong>
+          <span>모델이 잘하는 일과 자주 틀리는 지점은 버전마다 달라진다.</span>
+        </div>
+        <div class="card compact">
+          <div class="number">E</div>
+          <strong>Environment</strong>
+          <span>OS, 권한, 도구 버전, CI 환경이 바뀌면 안전한 실행 조건도 달라진다.</span>
+        </div>
+        <div class="card compact">
+          <div class="number">T</div>
+          <strong>Team</strong>
+          <span>팀의 품질 기준, 리뷰 방식, 감당 가능한 검증 비용도 계속 움직인다.</span>
+        </div>
+      </div>
+      <p class="quote a" style="margin-top: 34px; font-size: 34px;">좋은 Harness는 정답 문서가 아니라,<br><span class="accent">변화에 맞춰 업데이트되는 운영 계약</span>이다.</p>
+    </section>
+
+
     <!-- Slide 22: Chapter 3 - Phase overview -->
     <section class="slide wide" data-notes="Phase는 Agent에게 주는 작은 작업 단위입니다. 요구사항을 바로 실행하지 않고 Phase 문서로 나누어, 무엇을 어디까지 할지, 무엇은 하지 않을지, 어떤 조건으로 완료할지를 미리 명확히 합니다. Task를 작게 나누면 한 번에 처리해야 할 판단량이 줄어들고, 고성능 모델에만 의존하지 않아도 더 안정적인 결과를 얻을 수 있습니다.">
       <div class="eyebrow a">Phase as contract</div>
