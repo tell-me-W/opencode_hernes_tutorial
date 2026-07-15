@@ -7,6 +7,7 @@ This directory contains the standalone HTML slide deck for the OpenCode Harness 
 - `index.html`: slide content and deck markup.
 - `styles.css`: shared visual system for the deck.
 - `app.js`: keyboard navigation, progress, fullscreen, notes, and slide helpers.
+- `resource/`: presentation source notes and images used by the deck.
 - `vendor/`: local third-party assets used by the deck.
 
 ## Current narrative note
